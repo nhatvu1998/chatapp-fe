@@ -1,0 +1,120 @@
+.layout-login {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Roboto", sans-serif;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+  color: rgba(0, 0, 0, 0.653);
+  background-color: rgb(240, 242, 245);
+  text-shadow: 0 0.2px 0.3px rgba(0, 0, 0, 0.353);
+  background-size: cover;
+}
+
+.login-form {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
+  z-index: 2;
+  border-radius: 15px;
+  color: rgb(33, 37, 41);
+  width: auto;
+  line-height: 24px;
+
+  #username, #email, #fullname {
+    border-color: rgb(221, 223, 226);
+    border-radius: 6px;
+    border-style: solid;
+    border-width: 1px;
+    color: rgb(29, 33, 41);
+    display: inline-block;
+    line-height: 14px;
+    padding: 10px 12px;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  .ant-input-password {
+    border-color: rgb(221, 223, 226);
+    border-radius: 6px;
+    border-style: solid;
+    border-width: 1px;
+    color: rgb(29, 33, 41);
+    display: flex;
+    line-height: 14px;
+    padding: 10px 12px;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  .ant-form-item {
+    margin-top: 14px;
+    margin-bottom: 0px;
+  }
+
+  .register-form-button {
+    width: 100%;
+    height: auto;
+    align-items: flex-start;
+    background-color: rgb(66, 183, 42);
+    border-radius: 6px;
+    color: rgb(255, 255, 255);
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 700;
+    justify-content: center;
+    line-height: 48px;
+    padding: 0px 16px;
+    text-align: center;
+
+    &:hover {
+      background-color: #36a420;
+    }
+  }
+
+  .login-form-button {
+    width: 100%;
+    height: auto;
+    background-color: rgb(24, 119, 242);
+    border-radius: 6px;
+    border: none;
+    color: rgb(255, 255, 255);
+    display: inline-block;
+    font-size: 17px;
+    font-weight: 700;
+    justify-content: center;
+    line-height: 48px;
+    padding: 0px 16px;
+    text-align: center;
+
+    &:hover {
+      background-color: #3b6dcb;
+    }
+  }
+
+  .ant-divider {
+    margin: 8px 0;
+  }
+  @media all and (min-width: 768px) {
+    .ant-form {
+      min-width: 40vw;
+    }
+  }
+
+  @media all and (max-width: 480px) {
+    .ant-form {
+      min-width: 80vw;
+    }
+  }
+
+  @media (min-width: 480px) and (max-width: 768px) {
+    .ant-form {
+      min-width: 60vw;
+    }
+  }
+}
+

@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+div::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.5em;
+  position: absolute;
+  right: 0;
+}
+
+div::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+div::-webkit-scrollbar-track {
+  background: none;
+}

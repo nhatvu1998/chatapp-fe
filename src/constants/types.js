@@ -1,0 +1,13 @@
+export const SIGN_IN = "SIGN_IN";
+
+export const SIGN_OUT = "SIGN_OUT";
+
+export const GET_USER = "GET_USER";
+
+export const GET_CONVERSATION_LIST = "GET_CONVERSATION_LIST";
+
+export const SELECTED_CONVERSATION = "SELECTED_CONVERSATION";
+
+export const GET_MESSAGE_LIST = "GET_MESSAGE_LIST";
+
+export const START_CALLING = "START_CALLING";
