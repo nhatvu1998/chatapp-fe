@@ -4,6 +4,7 @@ import {FIND_ALL_MESSAGE, MESSAGES_SUBSCRIPTION} from "../queries/message";
 import {Avatar, Col, Layout, List, Row, Space, Tooltip, Image, Spin, Modal} from "antd";
 import InfiniteScroll from 'react-infinite-scroller';
 import {useSelector} from 'react-redux';
+import {withRouter} from 'react-router-dom';
 import {ArrowDownCircle, Info, Sidebar, Video} from "react-feather";
 import moment from 'moment';
 import ChatFooter from "../footer/ChatFooter";
@@ -77,9 +78,9 @@ const ChatContent = (props) => {
     console.log(answer)
     await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
     acceptCallUser({variables: {data: JSON.stringify(answer)}});
-    window.open(
-      `http://localhost:3000/calling?peer_id=${callerSignal.peerId}`, '',
-      "resizable,scrollbars,status");
+    // window.open(
+    //   `http://172.15.197.170:3000/calling?peer_id=${callerSignal.peerId}`, '',
+    //   "resizable,scrollbars,status");
 
   }
 
@@ -128,10 +129,14 @@ const ChatContent = (props) => {
   }, [loading, data])
 
   const startCall = () => {
-    const peerID = uuidv4()
-    window.open(
-      `http://localhost:3000/calling?peer_id=${peerID}`, '',
-      "resizable,scrollbars,status")
+    const peerId = uuidv4()
+    props.history.push(`/calling?peer_id=${peerId}`)
+    // window.open(
+    //   `http://localhost:3000/calling?peer_id=${peerId}`, '',
+    //   "resizable,scrollbars,status")
+    // window.open(
+    //   `http://172.15.197.170:3000/calling?peer_id=${peerId}`, '',
+    //   "resizable,scrollbars,status")
   }
 
   const conversationInfo = (
@@ -289,4 +294,4 @@ const ChatContent = (props) => {
   )
 }
 
-export default ChatContent;
+export default withRouter(ChatContent);

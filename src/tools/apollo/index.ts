@@ -7,7 +7,7 @@ import {createUploadLink} from 'apollo-upload-client';
 // const endPoint = `${process.env.END_POINT}`
 
 // const urn = process.env.REACT_APP_GRAPHQL_URN || `${domain}/${endPoint}`
-const urn = "localhost:4000/graphql";
+const urn = "172.15.197.170:4000/graphql";
 
 const httpLink = new HttpLink({
   uri: `${window.location.protocol}//${urn}`

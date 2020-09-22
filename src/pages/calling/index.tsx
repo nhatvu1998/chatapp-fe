@@ -2,12 +2,14 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Button, Row} from "antd";
 import {useMutation, useSubscription} from "@apollo/client";
 import {useDispatch, useSelector} from "react-redux";
+import {withRouter} from 'react-router-dom';
 import {START_CALL, ACCEPT_CALL_USER} from "./queries";
 import qs from 'query-string';
 import io from "socket.io-client";
 
 const Calling = (props) => {
   const token = window.localStorage.getItem('token');
+  console.log(token)
   const userStream = useRef<any>();
   const peerRef = useRef<any>()
   const socketRef = useRef<any>()
@@ -24,7 +26,7 @@ const Calling = (props) => {
     navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
       userVideo.current.srcObject = stream;
       userStream.current = stream;
-      socketRef.current = io.connect("http://localhost:4000");
+      socketRef.current = io.connect("http://172.15.197.170:4000", {query: {token}});
       socketRef.current.emit("join room", peerId);
       socketRef.current.on('other user', userID => {
         callUser(userID);
@@ -129,18 +131,15 @@ const Calling = (props) => {
   }
 
    return (
-    <div>
-      <Row>
-        <video width='250px' height='200px' playsInline muted ref={userVideo} autoPlay />
-        {
-          partnerVideo && (
-            <video width='250px' height='200px' playsInline ref={partnerVideo} autoPlay />
-          )
-        }
-        <Button onClick={() => callUser('123')}>Call</Button>
-      </Row>
+    <div style={{height: '100vh'}}>
+      {
+        partnerVideo && (
+          <video width='100%' height='100%' playsInline style={{zIndex: 1, position: "absolute"}} ref={partnerVideo} autoPlay />
+        )
+      }
+        <video width='250px' height='200px' style={{zIndex: 1000, position: "absolute", right: 0, bottom: 0}} playsInline muted ref={userVideo} autoPlay />
     </div>
   )
 }
 
-export default Calling;
+export default withRouter(Calling);

@@ -13,7 +13,7 @@ interface Props {
 
 
 const PrivateRoute = (props: Props) => {
-  if (!props.isAuthenticated) return <Redirect to="/login" />;
+  // if (!props.isAuthenticated) return <Redirect to="/login" />;
   const dispatch = useDispatch()
   const {data, loading} = useQuery(GET_PROFILE)
 
