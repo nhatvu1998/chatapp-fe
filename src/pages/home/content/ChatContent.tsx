@@ -11,6 +11,7 @@ import ChatFooter from "../footer/ChatFooter";
 import RightContent from "./RightContent";
 import {useDispatch} from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
+import io from 'socket.io-client';
 import {ACCEPT_CALL, START_CALL_USER} from "../../calling/queries";
 const {Header, Content} = Layout;
 
@@ -31,6 +32,8 @@ interface PagingType {
 }
 
 const userId = localStorage.getItem('userId');
+const token = window.localStorage.getItem('token');
+export const socket = io.connect(`http://${window.location.hostname}:4000`, {query: {token}});
 
 const ChatContent = (props) => {
   const [rowData, setRowdata] = useState<Message[]>([]);
@@ -41,6 +44,7 @@ const ChatContent = (props) => {
     hasMore: true,
   })
   const dispatch = useDispatch();
+  const token = window.localStorage.getItem('token');
 
   const [acceptCallUser] = useMutation(ACCEPT_CALL);
 
@@ -50,37 +54,22 @@ const ChatContent = (props) => {
   const currentConversation = useSelector<string>(state => state?.conversation?.currentConverSation);
   const messagesEndRef = useRef(null);
   const [loadMessage, { data, loading }] = useLazyQuery(FIND_ALL_MESSAGE)
-  const { data: dataAdded, loading: loadingAdded } = useSubscription(
-    MESSAGES_SUBSCRIPTION,
-  );
+  // const { data: dataAdded, loading: loadingAdded } = useSubscription(
+  //   MESSAGES_SUBSCRIPTION,
+  // );
   const [isReceivingCall, setIsReceivingCall] = useState(false);
   const [userCalling, setUserCalling] = useState('');
   const [callerSignal, setCallerSignal] = useState();
-  const {loading: loadingCall, data: dataCall} = useSubscription(START_CALL_USER);
 
   useEffect(() => {
-    if (!loadingCall) {
-      if (dataCall && dataCall.startCallUser) {
-        console.log(dataCall.startCallUser)
-        setCallerSignal(dataCall.startCallUser);
-        setIsReceivingCall(true);
-      }
-    }
-  }, [loadingCall, dataCall])
+    socket.emit('join room', roomId => {
+      console.log(roomId)
+    })
+  })
 
   const acceptCall = async () => {
     setIsReceivingCall(isReceivingCall => !isReceivingCall)
-    const peerConnection = new RTCPeerConnection();
-    await peerConnection.setRemoteDescription(
-      new RTCSessionDescription(JSON.parse(callerSignal.data))
-    );
-    const answer = await peerConnection.createAnswer();
-    console.log(answer)
-    await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
-    acceptCallUser({variables: {data: JSON.stringify(answer)}});
-    // window.open(
-    //   `http://172.15.197.170:3000/calling?peer_id=${callerSignal.peerId}`, '',
-    //   "resizable,scrollbars,status");
+
 
   }
 
@@ -101,14 +90,14 @@ const ChatContent = (props) => {
     }
   }, [rowData])
 
-  useEffect(() => {
-    if (!loadingAdded ) {
-      if (dataAdded && dataAdded.messageAdded) {
-        console.log(dataAdded.messageAdded)
-        setRowdata((rowData=> [...rowData, dataAdded.messageAdded]));
-      }
-    }
-  }, [dataAdded])
+  // useEffect(() => {
+  //   if (!loadingAdded ) {
+  //     if (dataAdded && dataAdded.messageAdded) {
+  //       console.log(dataAdded.messageAdded)
+  //       setRowdata((rowData=> [...rowData, dataAdded.messageAdded]));
+  //     }
+  //   }
+  // }, [dataAdded])
 
   useEffect(() => {
     if (!loading ) {
@@ -130,10 +119,10 @@ const ChatContent = (props) => {
 
   const startCall = () => {
     const peerId = uuidv4()
-    props.history.push(`/calling?peer_id=${peerId}`)
-    // window.open(
-    //   `http://localhost:3000/calling?peer_id=${peerId}`, '',
-    //   "resizable,scrollbars,status")
+    // props.history.push(`/calling?peer_id=${peerId}`)
+    window.open(
+      `http://${window.location.hostname}:3000/calling?peer_id=${peerId}`, '',
+      "resizable,scrollbars,status")
     // window.open(
     //   `http://172.15.197.170:3000/calling?peer_id=${peerId}`, '',
     //   "resizable,scrollbars,status")

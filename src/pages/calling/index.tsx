@@ -1,56 +1,76 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Button, Row} from "antd";
-import {useMutation, useSubscription} from "@apollo/client";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {withRouter} from 'react-router-dom';
-import {START_CALL, ACCEPT_CALL_USER} from "./queries";
 import qs from 'query-string';
-import io from "socket.io-client";
+import {socket} from "../home/content/ChatContent";
+import './index.scss';
+import {Mic, Monitor, Video, XCircle} from "react-feather";
 
 const Calling = (props) => {
-  const token = window.localStorage.getItem('token');
-  console.log(token)
+  const [isOnAudio, setIsOnAudio] = useState(true);
+  const [isOnVideo, setIsOnVideo] = useState(true);
+  const [isOnShareScreen, setIsOnShareScreen] = useState(false);
   const userStream = useRef<any>();
   const peerRef = useRef<any>()
-  const socketRef = useRef<any>()
   const currentUserId = useSelector<string>(state => state?.auth?.profile?._id);
   const otherUser = useRef();
   const userVideo = useRef<any>(null);
   const partnerVideo = useRef<any>(null);
-  const [startCall] = useMutation(START_CALL)
-  const {loading, data} = useSubscription(ACCEPT_CALL_USER)
 
   const peerId = qs.parse(props.location.search).peer_id
 
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
+    // @ts-ignores
+    navigator.mediaDevices.getUserMedia({video: isOnVideo, audio: isOnAudio}).then(stream => {
       userVideo.current.srcObject = stream;
       userStream.current = stream;
-      socketRef.current = io.connect("http://172.15.197.170:4000", {query: {token}});
-      socketRef.current.emit("join room", peerId);
-      socketRef.current.on('other user', userID => {
+
+      socket.emit("join room", peerId);
+      socket.on('other user', userID => {
         callUser(userID);
         otherUser.current = userID;
       });
 
-      socketRef.current.on("user joined", userID => {
+      socket.on("user joined", userID => {
         otherUser.current = userID;
       });
 
-      socketRef.current.on("offer", handleRecieveCall);
+      socket.on("offer", handleReceiveCall);
 
-      socketRef.current.on("answer", handleAnswer);
+      socket.on("answer", handleAnswer);
 
-      socketRef.current.on("ice-candidate", handleNewICECandidateMsg);
+      socket.on("ice-candidate", handleNewICECandidateMsg);
     })
   }, [])
 
-  function callUser(userID) {
+  useEffect(()=>{
+    const cancelElm = document.querySelector('.cancelCall') as HTMLElement;
+    if(cancelElm.style.display) {
+      setTimeout(()=>{
+        cancelElm.style.display = 'none';
+      }, 3000)
+    }
+  })
+
+  useEffect(() => {
+    const callScreen = document.querySelector('#callScreen');
+    if (callScreen) {
+      callScreen.addEventListener('mousemove', (e) => {
+        const cancelElm = document.querySelector('.cancelCall');
+        if(cancelElm) {
+          // @ts-ignore
+          cancelElm.style.display = 'block';
+        }
+      })
+    }
+  })
+
+  const callUser = (userID) => {
     peerRef.current = createPeer(userID);
     userStream.current.getTracks().forEach(track => peerRef.current.addTrack(track, userStream.current));
   }
 
-  function createPeer(userID) {
+  const createPeer = (userID) => {
     const peer = new RTCPeerConnection({
       iceServers: [
         {
@@ -66,25 +86,39 @@ const Calling = (props) => {
 
     peer.onicecandidate = handleICECandidateEvent;
     peer.ontrack = handleTrackEvent;
+    peer.onconnectionstatechange = function(event) {
+      console.log(peer.connectionState)
+      switch(peer.connectionState) {
+        case "connected":
+          break;
+        case "disconnected":
+        case "failed":
+          partnerVideo.current.srcObject = null;
+          peerRef.current.close();
+          break;
+        case "closed":
+          break;
+      }
+    };
     peer.onnegotiationneeded = () => handleNegotiationNeededEvent(userID);
 
     return peer;
   }
 
-  function handleNegotiationNeededEvent(userID) {
+  const handleNegotiationNeededEvent = (userID) => {
     peerRef.current.createOffer().then(offer => {
       return peerRef.current.setLocalDescription(offer);
     }).then(() => {
       const payload = {
         target: userID,
-        caller: socketRef.current.id,
+        caller: socket.id,
         sdp: peerRef.current.localDescription
       };
-      socketRef.current.emit("offer", payload);
+      socket.emit("offer", payload);
     }).catch(e => console.log(e));
   }
 
-  function handleRecieveCall(incoming) {
+  const handleReceiveCall = (incoming) => {
     // @ts-ignore
     peerRef.current = createPeer();
     const desc = new RTCSessionDescription(incoming.sdp);
@@ -97,47 +131,99 @@ const Calling = (props) => {
     }).then(() => {
       const payload = {
         target: incoming.caller,
-        caller: socketRef.current.id,
+        caller: socket.id,
         sdp: peerRef.current.localDescription
       }
-      socketRef.current.emit("answer", payload);
+      socket.emit("answer", payload);
     })
   }
 
-  function handleAnswer(message) {
+  const handleAnswer = (message) => {
     const desc = new RTCSessionDescription(message.sdp);
     peerRef.current.setRemoteDescription(desc).catch(e => console.log(e));
   }
 
-  function handleICECandidateEvent(e) {
+  const handleICECandidateEvent = (e) => {
     if (e.candidate) {
       const payload = {
         target: otherUser.current,
         candidate: e.candidate,
       }
-      socketRef.current.emit("ice-candidate", payload);
+      socket.emit("ice-candidate", payload);
     }
   }
 
-  function handleNewICECandidateMsg(incoming) {
+  const handleNewICECandidateMsg = (incoming) => {
     const candidate = new RTCIceCandidate(incoming);
 
     peerRef.current.addIceCandidate(candidate)
       .catch(e => console.log(e));
   }
 
-  function handleTrackEvent(e) {
+  const handleTrackEvent = (e) => {
+    console.log(e)
     partnerVideo.current.srcObject = e.streams[0];
   }
 
+  // console.log(peerRef);
+  const handleExitCall = () => {
+    // const senders = peerRef.current.getSenders();
+    // senders.forEach((sender) => userStream.current.removeTrack(sender, userStream.current));
+    userStream.current.getTracks().forEach(track => track.stop());
+    console.log(peerRef.current);
+
+    window.close();
+  }
+
+  const toggleAudio = () => {
+    userStream.current.getAudioTracks()[0].enabled = !isOnAudio;
+    setIsOnAudio(!isOnAudio)
+  }
+
+  const toggleVideo = () => {
+    userStream.current.getVideoTracks()[0].enabled = !isOnVideo;
+    setIsOnVideo(!isOnVideo)
+  }
+
+  const shareScreen = () => {
+    if (!isOnShareScreen) {
+      // @ts-ignore
+      navigator.mediaDevices.getDisplayMedia({video: true}).then(stream => {
+        let videoTrack = stream.getVideoTracks()[0]
+        userVideo.current.srcObject = stream;
+        userStream.current = stream;
+        const senders = peerRef.current.getSenders().find((s) => s.track.kind === videoTrack.kind);
+        console.log(senders);
+        senders.replaceTrack(videoTrack);
+      });
+      setIsOnShareScreen(isOnShareScreen => !isOnShareScreen);
+    } else {
+      navigator.mediaDevices.getUserMedia({video: true, audio: true}).then((stream) => {
+        let videoTrack = stream.getVideoTracks()[0];
+        userVideo.current.srcObject = stream;
+        userStream.current = stream;
+        const senders = peerRef.current.getSenders().find((s) => s.track.kind === videoTrack.kind);
+        console.log(senders);
+        senders.replaceTrack(videoTrack);
+      });
+      setIsOnShareScreen(isOnShareScreen => !isOnShareScreen);
+    }
+  }
+
    return (
-    <div style={{height: '100vh'}}>
+    <div id='callScreen'>
       {
         partnerVideo && (
-          <video width='100%' height='100%' playsInline style={{zIndex: 1, position: "absolute"}} ref={partnerVideo} autoPlay />
+          <video id='partnerVideo' playsInline ref={partnerVideo} autoPlay />
         )
       }
-        <video width='250px' height='200px' style={{zIndex: 1000, position: "absolute", right: 0, bottom: 0}} playsInline muted ref={userVideo} autoPlay />
+      <video id='myVideo' playsInline muted ref={userVideo} autoPlay />
+      <div className={'cancelCall'}>
+        <XCircle onClick={() => handleExitCall()} />
+        <Monitor onClick={() => shareScreen()}/>
+        <Mic onClick={() => toggleAudio()} />
+        <Video onClick={() => toggleVideo()} />
+      </div>
     </div>
   )
 }
