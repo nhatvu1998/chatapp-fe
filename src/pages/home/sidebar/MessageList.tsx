@@ -7,6 +7,8 @@ import {MoreHorizontal} from "react-feather";
 import {useDispatch, useSelector} from 'react-redux';
 import moment from 'moment';
 import {GET_CONVERSATION_LIST, SELECTED_CONVERSATION} from "../../../constants/types";
+import {socket} from "../content/ChatContent";
+import {withRouter} from 'react-router-dom';
 
 interface Conversation {
   _id: string,
@@ -18,25 +20,53 @@ interface Conversation {
   }
 }
 
-const MessageList = () => {
+const MessageList = (props) => {
   const [rowData, setRowdata] = useState<Conversation[]>([]);
+  const [inProp, setInProp] = useState(false);
   const dispatch = useDispatch();
   const currentConversation = useSelector<string>(state => state?.conversation?.currentConverSation);
   const currentUserId = useSelector<string>(state => state?.auth?.profile?._id);
   const [getConversations, { loading, data }] = useLazyQuery(GET_CONVERSATIONS, { variables: { userId: currentUserId } })
-
+  const conversationId = props.match.params.id;
+  console.log(props)
   useEffect(() => {
     if (currentUserId) {
       getConversations()
     }
-  }, [currentUserId])
+  }, [currentUserId, currentConversation])
+
+  useEffect(() => {
+    socket.on('newMessage', data => {
+      setRowdata(
+        rowData.map(x => {
+          if (x._id === data.conversationId) {
+            return {
+              ...x,
+              updatedAt: data.updatedAt,
+              firstMessage: {
+                message: data.message,
+                senderId: data.senderId,
+              }
+            }
+          } else return x;
+        }).sort((a, b) => {
+          // @ts-ignore
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+        })
+      )
+    })
+  }, [rowData])
+
 
   useEffect(() => {
     if (!loading ) {
       if (data && data.getManyConversation) {
         if (data.getManyConversation.length !== 0) {
           dispatch({type: GET_CONVERSATION_LIST, payload: data.getManyConversation})
-          dispatch({type: SELECTED_CONVERSATION, payload: data.getManyConversation[0]})
+          if (!currentConversation) {
+            dispatch({type: SELECTED_CONVERSATION, payload: data.getManyConversation[0]})
+          }
+          props.history.push(`/message/${data.getManyConversation[0]._id}`)
           setRowdata(data.getManyConversation)
         } else {
           setRowdata([])
@@ -52,7 +82,9 @@ const MessageList = () => {
 
   const selectConversation = (item) => {
     dispatch({type: SELECTED_CONVERSATION, payload: item})
+    props.history.push(`/message/${item._id}`)
   }
+
   return (
     <div className="message-list-infinite-container">
       <InfiniteScroll
@@ -62,10 +94,10 @@ const MessageList = () => {
         loadMore={handleInfiniteOnLoad}
         useWindow={false}
       >
-        <List
-          itemLayout="vertical"
-          dataSource={rowData}
-          renderItem={item => (
+          <List
+            itemLayout="vertical"
+            dataSource={rowData}
+            renderItem={item => (
               <List.Item
                 style={{ backgroundColor: (item._id === currentConversation?._id) ? '#cdd8ec' : '' }}
                 key={item._id}
@@ -86,20 +118,20 @@ const MessageList = () => {
                   </>
                 }
               >
-                  <List.Item.Meta
-                      avatar={
-                        <Avatar>U</Avatar>
-                      }
-                      title={<a href="https://ant.design">{item.title}</a>}
-                      description={<div className='list-description'>{item.firstMessage?.senderId === currentUserId ? 'Bạn: ' : ''} {item.firstMessage?.message}</div>}
-                  />
+                <List.Item.Meta
+                  avatar={
+                    <Avatar>U</Avatar>
+                  }
+                  title={<a href="https://ant.design">{item.title}</a>}
+                  description={<div className='list-description'>{item.firstMessage?.senderId === currentUserId ? 'Bạn: ' : ''} {item.firstMessage?.message}</div>}
+                />
               </List.Item>
             )}
-        >
-        </List>
+          >
+          </List>
       </InfiniteScroll>
     </div>
   )
 }
 
-export default MessageList;
+export default withRouter(MessageList);

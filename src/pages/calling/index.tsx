@@ -12,35 +12,35 @@ const Calling = (props) => {
   const [isOnShareScreen, setIsOnShareScreen] = useState(false);
   const userStream = useRef<any>();
   const peerRef = useRef<any>()
-  const currentUserId = useSelector<string>(state => state?.auth?.profile?._id);
   const otherUser = useRef();
   const userVideo = useRef<any>(null);
   const partnerVideo = useRef<any>(null);
 
-  const peerId = qs.parse(props.location.search).peer_id
+  const peerId = qs.parse(props.location.search).peer_id;
 
   useEffect(() => {
-    // @ts-ignores
-    navigator.mediaDevices.getUserMedia({video: isOnVideo, audio: isOnAudio}).then(stream => {
-      userVideo.current.srcObject = stream;
-      userStream.current = stream;
+      // @ts-ignores
+      navigator.mediaDevices.getUserMedia({video: isOnVideo, audio: isOnAudio}).then(stream => {
+        userVideo.current.srcObject = stream;
+        userStream.current = stream;
 
-      socket.emit("join room", peerId);
-      socket.on('other user', userID => {
-        callUser(userID);
-        otherUser.current = userID;
-      });
+        socket.emit("join room", peerId);
+        socket.emit("call-signal", peerId);
+        socket.on('other user', userID => {
+          callUser(userID);
+          otherUser.current = userID;
+        });
 
-      socket.on("user joined", userID => {
-        otherUser.current = userID;
-      });
+        socket.on("user joined", userID => {
+          otherUser.current = userID;
+        });
 
-      socket.on("offer", handleReceiveCall);
+        socket.on("offer", handleReceiveCall);
 
-      socket.on("answer", handleAnswer);
+        socket.on("answer", handleAnswer);
 
-      socket.on("ice-candidate", handleNewICECandidateMsg);
-    })
+        socket.on("ice-candidate", handleNewICECandidateMsg);
+      })
   }, [])
 
   useEffect(()=>{

@@ -9,9 +9,6 @@ import {createUploadLink} from 'apollo-upload-client';
 // const urn = process.env.REACT_APP_GRAPHQL_URN || `${domain}/${endPoint}`
 const urn = `${window.location.hostname}:4000/graphql`;
 
-const httpLink = new HttpLink({
-  uri: `${window.location.protocol}//${urn}`
-})
 
 const uploadlink = createUploadLink({
   uri: `${window.location.protocol}//${urn}`,
@@ -23,7 +20,7 @@ const wsClient = new SubscriptionClient(`${window.location.protocol === 'https:'
     'access-token': window.localStorage.getItem('token') ? `${window.localStorage.getItem('token')}` : ``
   }
 })
-const wsLink = new WebSocketLink(wsClient)
+
 const authLink = new ApolloLink((operation, forward) => {
   operation.setContext(({ headers = {} }) => ({
     headers: {
@@ -33,14 +30,9 @@ const authLink = new ApolloLink((operation, forward) => {
   }))
   return forward(operation)
 })
-const link = split(
-  ({ query }) => {
-    const definition = getMainDefinition(query)
-    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
-  }, wsLink, uploadlink
-)
+
 const Client = new ApolloClient({
-  link: concat(authLink, link),
+  link: concat(authLink, uploadlink),
   cache: new InMemoryCache({
     addTypename: false,
   }),

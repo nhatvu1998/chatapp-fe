@@ -1,11 +1,14 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Input, Popover, Space, Tooltip} from "antd";
 import {File, Image, Send, Smile} from "react-feather";
-import { Picker } from "emoji-mart";
+import { Picker, NimblePicker } from "emoji-mart";
 import {useMutation} from "@apollo/client";
 import {NEW_MESSAGE, UPLOAD_FILE} from "../queries/message";
 import {useSelector} from 'react-redux';
+import data from 'emoji-mart/data/facebook.json'
 import "emoji-mart/css/emoji-mart.css";
+
+const { TextArea } = Input;
 
 const ChatFooter = () => {
   const [emojiVisible, setEmojiVisible] = useState(false);
@@ -60,9 +63,11 @@ const ChatFooter = () => {
       type: 0,
       message: messageText,
     }
+    if (messageText.trim()) {
+      sendMessage({ variables: { messageInput: values } })
+    }
     setMessageText('')
-    console.log(values)
-    sendMessage({ variables: { messageInput: values } })
+    // socket.emit('messageAdded', values)
   }
 
   const handleVisibleChange = (visible) => {
@@ -71,7 +76,7 @@ const ChatFooter = () => {
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <div className="chat-footer">
+      <div className="chat-footer custom-input">
         <Space>
           <label htmlFor="upload-photo">
             <Tooltip title={"image"}>
@@ -94,9 +99,9 @@ const ChatFooter = () => {
             suffix={
               <Popover
                 content={
-                  <Picker
+                  <NimblePicker
                     set="facebook"
-                    sheetSize={32}
+                    data={data}
                     onSelect={addEmoji}
                   />
                 }

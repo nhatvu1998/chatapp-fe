@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useQuery} from "@apollo/client";
 import {GET_CONVERSATIONS, GET_USER_LIST} from "../queries/message";
-import {Avatar, List, Row, Space} from "antd";
+import {Avatar, Badge, List, Row, Space} from "antd";
 import InfiniteScroll from 'react-infinite-scroller';
 import {MoreHorizontal} from "react-feather";
 import {useDispatch, useSelector} from 'react-redux';
@@ -45,7 +45,11 @@ const UserList = () => {
             >
               <Row justify="space-around" align="middle">
                 <Space>
-                  <Avatar size={"large"}>U</Avatar>
+                  <span className="avatar-item">
+                    <Badge color={'green'} size={'default'} offset={[-6, 6]}>
+                      <Avatar shape="circle" size={"large"} >U</Avatar>
+                    </Badge>
+                  </span>
                   <span className='contact-name'>{item.fullname}</span>
                 </Space>
               </Row>

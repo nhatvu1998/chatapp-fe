@@ -19,6 +19,11 @@ export const AuthenticatedRoutes = [
   },
   {
     exact: true,
+    path: "/message/:id",
+    component: "home",
+  },
+  {
+    exact: true,
     path: "/calling",
     component: "calling",
   }

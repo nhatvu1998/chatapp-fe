@@ -7,6 +7,7 @@ const GET_CONVERSATIONS = gql`
             _id
             title
             updatedAt
+            type
             firstMessage {
                 message
                 senderId
@@ -27,6 +28,17 @@ const FIND_ALL_MESSAGE = gql`
                 name
                 url
             }
+            createdAt
+        }
+    }
+`;
+
+const SEARCH_MESSAGE = gql`
+    query searchMessage($messageQuery: MessageQuery!) {
+        searchMessage(messageQuery: $messageQuery) {
+            _id
+            message
+            senderId
             createdAt
         }
     }
@@ -88,6 +100,11 @@ const GET_PROFILE = gql`
             username
             fullname
             email
+            avatarFile{
+                key
+                url
+                name
+            }
         }
     }
 `
@@ -102,4 +119,46 @@ const GET_USER_LIST = gql`
         }
     }
 `
-export {GET_CONVERSATIONS, FIND_ALL_MESSAGE, MESSAGES_SUBSCRIPTION, NEW_MESSAGE, UPLOAD_FILE, GET_PHOTOS, GET_PROFILE, GET_USER_LIST}
+
+const REMOVE_MESSAGE = gql`
+    mutation removeMessage($messageId: String!) {
+        removeMessage(messageId: $messageId)
+    }
+`
+
+const CREATE_CONVERSATION = gql`
+    mutation createConversation($conversationInput: ConversationInput!) {
+        createConversation(conversationInput: $conversationInput) {
+            _id
+            title
+            updatedAt
+            type
+            firstMessage {
+                message
+                senderId
+            }
+        }
+    }
+`
+
+const UPDATE_USER = gql`
+    mutation updateUser($avatarFile: Upload!, $userData: UpdateUserInput!) {
+        updateUser(avatarFile: $avatarFile, userData: $userData) {
+            _id
+        }
+    }
+`
+export {
+  GET_CONVERSATIONS,
+  FIND_ALL_MESSAGE,
+  MESSAGES_SUBSCRIPTION,
+  NEW_MESSAGE,
+  UPLOAD_FILE,
+  GET_PHOTOS,
+  GET_PROFILE,
+  GET_USER_LIST,
+  SEARCH_MESSAGE,
+  REMOVE_MESSAGE,
+  CREATE_CONVERSATION,
+  UPDATE_USER
+}

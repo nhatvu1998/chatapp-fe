@@ -52,3 +52,11 @@ div::-webkit-scrollbar-thumb {
 div::-webkit-scrollbar-track {
   background: none;
 }
+
+div {
+  scroll-behavior: smooth !important;
+}
+
+.ant-popover {
+  z-index: 1000 !important;
+}
