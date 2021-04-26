@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useSelector} from "react-redux";
 import {withRouter} from 'react-router-dom';
 import qs from 'query-string';
-import {socket} from "../home/content/ChatContent";
+import {socket} from "../../tools/apollo/index";
 import './index.scss';
 import {Mic, Monitor, Video, XCircle} from "react-feather";
 
@@ -74,15 +74,12 @@ const Calling = (props) => {
     const peer = new RTCPeerConnection({
       iceServers: [
         {
-          urls: "stun:stun.stunprotocol.org"
-        },
-        {
-          urls: 'turn:numb.viagenie.ca',
-          credential: 'muazkh',
-          username: 'webrtc@live.com'
-        },
+          urls: 'stun:stun.l.google.com:19302'
+        }
       ]
     });
+
+    console.log(peer)
 
     peer.onicecandidate = handleICECandidateEvent;
     peer.ontrack = handleTrackEvent;
@@ -90,6 +87,7 @@ const Calling = (props) => {
       console.log(peer.connectionState)
       switch(peer.connectionState) {
         case "connected":
+          console.log('connected');
           break;
         case "disconnected":
         case "failed":

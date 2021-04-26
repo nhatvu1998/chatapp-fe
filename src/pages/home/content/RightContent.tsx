@@ -1,13 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {Avatar, Col, Collapse, Divider, Image, Row} from "antd";
 import { UserOutlined } from '@ant-design/icons';
-import {useQuery} from "@apollo/client";
+import {useLazyQuery, useQuery} from "@apollo/client";
 import {GET_PHOTOS} from "../queries/message";
+import {useSelector} from 'react-redux';
 const { Panel } = Collapse;
 
 const RightContent = () => {
+  const currentConversation = useSelector<string>(state => state?.conversation?.currentConversation);
+  const currentUserId = useSelector<string>(state => state?.auth?.profile?._id);
+  const [partnerName, setPartnerName] = useState();
   const [rowData, setRowData] = useState([]);
-  const { loading, data } = useQuery(GET_PHOTOS, { variables: {messageQuery:{ conversationId: "35ac2d40-ec4b-11ea-9461-05031d2645f7"}} })
+  const [getPhotos, { loading, data }] = useLazyQuery(GET_PHOTOS);
+
+  useEffect(() => {
+    if (currentConversation) {
+      getPhotos({ variables: {messageQuery:{ conversationId: currentConversation._id}} })
+    }
+  }, [currentConversation])
+
 
   useEffect(() => {
     if (!loading ) {
@@ -21,13 +32,28 @@ const RightContent = () => {
     }
   }, [loading, data])
 
+  useEffect(() => {
+    if (currentConversation?.participants && currentUserId) {
+      console.log(currentConversation)
+      setPartnerName(currentConversation.participants.filter(participant => participant._id !== currentUserId).map(x => x.fullname).join())
+    }
+  }, [currentConversation])
+
+  console.log(currentConversation)
+
   const renderPhotos = () => {
     if (rowData) {
       return rowData.map((x:any) => {
           console.log(x)
           return (
-            <Col span={8}>
-              <Image src={x?.files?.url} />
+            <Col span={12}>
+              {x.type === 1 ? (
+                <Image src={x?.files?.url} />
+              ) : (
+                <video style={{width: '100%'}} controls>
+                  <source src={x.files.url} type="video/mp4" />
+                </video>
+              )}
             </Col>
           )
         }
@@ -43,11 +69,11 @@ const RightContent = () => {
       </Row>
       <Row>
         <span>
-          Luyen
+          {partnerName}
         </span>
       </Row>
       <Collapse accordion style={{ width: '100%'}}>
-        <Panel header="anh dc chia se" key="1">
+        <Panel header="Photos" key="1">
           <Row>
             {renderPhotos()}
           </Row>

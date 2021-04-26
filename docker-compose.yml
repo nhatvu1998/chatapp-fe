@@ -1,0 +1,8 @@
+version: "3.7"
+
+services:
+  app:
+    image: chatapp-fe
+    ports:
+      - "3000:80"
+    restart: unless-stopped

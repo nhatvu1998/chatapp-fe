@@ -2,7 +2,7 @@ import { GET_CONVERSATION_LIST, SELECTED_CONVERSATION } from "../../../constants
 
 const INTIAL_STATE = {
   data: null,
-  currentConverSation: null,
+  currentConversation: null,
 };
 
 export default (state = INTIAL_STATE, action) => {
@@ -10,7 +10,7 @@ export default (state = INTIAL_STATE, action) => {
     case GET_CONVERSATION_LIST:
       return { ...state, data: action.payload };
     case SELECTED_CONVERSATION:
-      return { ...state, currentConverSation: action.payload };
+      return { ...state, currentConversation: action.payload };
     // // case GET_USER:
     // //     return { ...state, profile: action.payload };
     // // case EDIT_PROFILE:

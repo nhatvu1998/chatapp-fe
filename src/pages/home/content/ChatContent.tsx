@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useLazyQuery, useMutation, useQuery, useSubscription} from "@apollo/client";
-import {FIND_ALL_MESSAGE, MESSAGES_SUBSCRIPTION, REMOVE_MESSAGE} from "../queries/message";
+import {FIND_ALL_MESSAGE, GET_USER, MESSAGES_SUBSCRIPTION, REMOVE_MESSAGE} from "../queries/message";
 import {Avatar, Col, Layout, List, Row, Space, Tooltip, Image, Spin, Modal, Popover, Button} from "antd";
 import InfiniteScroll from 'react-infinite-scroller';
 import {useSelector} from 'react-redux';
@@ -11,10 +11,11 @@ import ChatFooter from "../footer/ChatFooter";
 import RightContent from "./RightContent";
 import {useDispatch} from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
-import io from 'socket.io-client';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { Emoji } from 'emoji-mart'
 
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Emoji } from 'emoji-mart';
+import {Helmet} from "react-helmet";
+import { socket } from '../../../tools/apollo/index';
 const {Header, Content} = Layout;
 
 interface Message {
@@ -35,7 +36,8 @@ interface PagingType {
 
 const userId = localStorage.getItem('userId');
 const token = window.localStorage.getItem('token');
-export const socket = io.connect(`http://${window.location.hostname}:4000`, {query: {token}});
+// export const socket = io.connect(`https://api.magic-chat.cf`, {query: {token}});
+
 
 const ChatContent = (props) => {
   const [rowData, setRowdata] = useState<Message[]>([]);
@@ -49,12 +51,15 @@ const ChatContent = (props) => {
 
   const [isShowRightContent, setIsShowRightContent] = useState(false)
   const currentUserId = useSelector<string>(state => state?.auth?.profile?._id);
-  const currentConversation = useSelector<string>(state => state?.conversation?.currentConverSation);
+  const currentConversation = useSelector<string>(state => state?.conversation?.currentConversation);
   const messagesEndRef = useRef(null);
+  const [getUser, {data: userInfo, loading: userLoading}] = useLazyQuery(GET_USER);
   const { data, loading, refetch } = useQuery(FIND_ALL_MESSAGE, { variables: { messageQuery: { conversationId: currentConversation?._id } }})
   const [loadMoreMessage, { data: messageData, loading: messageLoading }] = useLazyQuery(FIND_ALL_MESSAGE)
   const [isReceivingCall, setIsReceivingCall] = useState(false);
   const [callerSignal, setCallerSignal] = useState();
+  const [callerInfo, setCallerInfo] = useState();
+  const [webHeader, setWebHeader] = useState('Home 123');
 
   const [removeMessage] = useMutation(REMOVE_MESSAGE)
 
@@ -70,12 +75,31 @@ const ChatContent = (props) => {
 
     socket.on('peerId', data => {
       setIsReceivingCall(true);
+      getUser({variables: {id: data?.userId}})
       setCallerSignal(data);
     })
   }, [])
 
+  useEffect(() => {
+    if (isReceivingCall) {
+      document.title = 'New call signal'
+    } else {
+      document.title = 'Home'
+    }
+  }, [isReceivingCall])
+
+  console.log(callerInfo)
+  useEffect(() => {
+    if (!userLoading) {
+      if (userInfo?.getUser) {
+        setCallerInfo(userInfo.getUser);
+      }
+    }
+  }, [userInfo, userLoading])
+
 
   const acceptCall = () => {
+    setWebHeader('Home');
     window.open(
       `http://${window.location.hostname}:3000/calling?peer_id=${callerSignal?.peerId}`, '',
       "resizable,scrollbars,status")
@@ -107,17 +131,6 @@ const ChatContent = (props) => {
           return new Date(a.createdAt) - new Date(b.createdAt);
         })
         console.log(result)
-        // if (data.findAllMessage.length !== 0) {
-        //   if (data.findAllMessage.length < 50) {
-        //     setPaging((paging) => ({...paging, loading: false, hasMore: false}));
-        //   }
-        //   setPaging((paging) => ({...paging, currentPage: paging.currentPage + 1, loading: false}));
-        //     let result = data.findAllMessage.slice().sort((a, b) => {
-        //     // @ts-ignore
-        //     return new Date(a.createdAt) - new Date(b.createdAt);
-        //   })
-        //   setRowdata([...result, ...rowData])
-        // }
       }
     }
   }, [messageLoading, messageData])
@@ -139,6 +152,7 @@ const ChatContent = (props) => {
   }, [loading, data])
 
   const startCall = () => {
+    setWebHeader('New conversation');
     const peerId = uuidv4()
     socket.emit('call-signal', {peerId, roomId: currentConversation?._id})
     window.open(
@@ -155,12 +169,7 @@ const ChatContent = (props) => {
             <span>{currentConversation?.title}</span>
           </Space>
         </Col>
-        <Col span={1} offset={9}>
-          <Tooltip title="Call">
-            <PhoneCall size={16} />
-          </Tooltip>
-        </Col>
-        <Col span={1}>
+        <Col span={1} offset={10}>
           <Tooltip title="Video call">
             <Video size={16} onClick={() => startCall()}/>
           </Tooltip>
@@ -240,16 +249,27 @@ const ChatContent = (props) => {
     });
   }
 
+  const confirmCall = () => {
+    console.log(callerInfo)
+    Modal.confirm({
+      title: `${callerInfo?.fullname} is calling you`,
+      icon: <ExclamationCircleOutlined />,
+      content: 'Do you want to accept this message?',
+      onOk: () => {
+        setIsReceivingCall(isReceivingCall => !isReceivingCall)
+        acceptCall()
+      },
+      onCancel:() => setIsReceivingCall(isReceivingCall => !isReceivingCall)
+    });
+  }
+
   return (
     <Content>
         <div className="chat-content">
           {conversationInfo}
           <Row>
             <Col span={isShowRightContent? 16 : 24}>
-              <div className="demo-infinite-container"
-                   id={"scrollableDiv"}
-                   ref={messagesEndRef}
-              >
+              <div className="demo-infinite-container" ref={messagesEndRef}>
                 <InfiniteScroll
                   initialLoad={false}
                   pageStart={0}
@@ -372,9 +392,8 @@ const ChatContent = (props) => {
             )}
           </Row>
         </div>
-      <ChatFooter />
-      <Modal
-        title={`${callerSignal?.userId} is calling you`}
+       <Modal
+        title={`${callerInfo?.fullname} is calling you`}
         visible={isReceivingCall}
         onOk={() => {
           setIsReceivingCall(isReceivingCall => !isReceivingCall)
@@ -383,6 +402,7 @@ const ChatContent = (props) => {
         onCancel={() => setIsReceivingCall(isReceivingCall => !isReceivingCall)}
       >
       </Modal>
+      <ChatFooter />
     </Content>
   )
 }

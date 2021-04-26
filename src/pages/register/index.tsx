@@ -49,10 +49,6 @@ const Register = () => {
                   name="password"
                   rules={[
                     { required: true, message: "Please input your Password!" },
-                    {
-                      pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-                      message: "Mật khẩu cần có ít nhất 8 kí tự gồm chữ và số",
-                    },
                   ]}
                   hasFeedback
                 >

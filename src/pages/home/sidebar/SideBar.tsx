@@ -279,47 +279,49 @@ const SideBar = (props) => {
             });
         }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          name="form_in_modal"
-          initialValues={{ modifier: 'public' }}
-        >
-          <Form.Item
-            name="avatarFile"
+        {currentUser && (
+          <Form
+            form={form}
+            layout="vertical"
+            name="form_in_modal"
+            initialValues={{ modifier: 'public' }}
           >
-            <Row justify="center">
-              <label htmlFor="update-avatar">
-                <Tooltip title={"image"}>
-                  <Avatar size={128} icon={<UserOutlined />}  src={avatarTempUrl} style={{textAlign: 'center'}}/>
-                </Tooltip>
-              </label>
-              <input type="file" required id="update-avatar" onChange={(e) => onUpdatePhoto(e)} />
-            </Row>
-          </Form.Item>
+            <Form.Item
+              name="avatarFile"
+            >
+              <Row justify="center">
+                <label htmlFor="update-avatar">
+                  <Tooltip title={"image"}>
+                    <Avatar size={128} icon={<UserOutlined />}  src={avatarTempUrl || currentUser?.avatarFile?.url} style={{textAlign: 'center'}}/>
+                  </Tooltip>
+                </label>
+                <input type="file" required id="update-avatar" onChange={(e) => onUpdatePhoto(e)} />
+              </Row>
+            </Form.Item>
 
-          <Form.Item
-            name="fullname"
-            label="Fullname"
-          >
-            <Input />
-          </Form.Item>
+            <Form.Item
+              name="fullname"
+              label="Fullname"
+            >
+              <Input defaultValue={currentUser?.fullname}/>
+            </Form.Item>
 
-          <Form.Item
-            name="phone"
-            label="Phone"
-          >
-            <Input />
-          </Form.Item>
+            <Form.Item
+              name="phone"
+              label="Phone"
+            >
+              <Input defaultValue={currentUser?.phone}/>
+            </Form.Item>
 
-          <Form.Item name="gender" label="Gender">
-            <Radio.Group>
-              <Radio value={UserGender.male}>Male</Radio>
-              <Radio value={UserGender.female}>Female</Radio>
-            </Radio.Group>
-          </Form.Item>
+            <Form.Item name="gender" label="Gender">
+              <Radio.Group defaultValue={currentUser?.gender}>
+                <Radio value={UserGender.male}>Male</Radio>
+                <Radio value={UserGender.female}>Female</Radio>
+              </Radio.Group>
+            </Form.Item>
 
-        </Form>
+          </Form>
+        )}
       </Modal>
     </>
   )

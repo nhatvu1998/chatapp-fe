@@ -5,10 +5,11 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import {createUploadLink} from 'apollo-upload-client';
 // const domain = window.location.host
 // const endPoint = `${process.env.END_POINT}`
+import io from "socket.io-client";
+const urn = 'localhost:4000/graphql'
+// const urn = `api.magic-chat.cf/graphql`;
 
-// const urn = process.env.REACT_APP_GRAPHQL_URN || `${domain}/${endPoint}`
-const urn = `${window.location.hostname}:4000/graphql`;
-
+const token = window.localStorage.getItem("token");
 
 const uploadlink = createUploadLink({
   uri: `${window.location.protocol}//${urn}`,
@@ -38,4 +39,7 @@ const Client = new ApolloClient({
   }),
 })
 
-export { Client }
+const socket = io.connect(`localhost:4000`, { query: { token } });
+console.log(socket);
+
+export { Client, socket }

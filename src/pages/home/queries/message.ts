@@ -8,6 +8,10 @@ const GET_CONVERSATIONS = gql`
             title
             updatedAt
             type
+            participants {
+                _id
+                fullname
+            }
             firstMessage {
                 message
                 senderId
@@ -84,6 +88,7 @@ const GET_PHOTOS = gql`
     query getPhotos($messageQuery: MessageQuery!) {
         getPhotos(messageQuery: $messageQuery) {
             _id
+            type
             files{
                 key
                 url
@@ -96,6 +101,22 @@ const GET_PHOTOS = gql`
 const GET_PROFILE = gql`
     query getProfile {
         getProfile {
+            _id
+            username
+            fullname
+            email
+            avatarFile{
+                key
+                url
+                name
+            }
+        }
+    }
+`
+
+const GET_USER = gql`
+    query getUser($id: String!) {
+        getUser(id: $id) {
             _id
             username
             fullname
@@ -156,6 +177,7 @@ export {
   UPLOAD_FILE,
   GET_PHOTOS,
   GET_PROFILE,
+  GET_USER,
   GET_USER_LIST,
   SEARCH_MESSAGE,
   REMOVE_MESSAGE,

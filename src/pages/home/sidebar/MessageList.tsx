@@ -7,7 +7,7 @@ import {MoreHorizontal} from "react-feather";
 import {useDispatch, useSelector} from 'react-redux';
 import moment from 'moment';
 import {GET_CONVERSATION_LIST, SELECTED_CONVERSATION} from "../../../constants/types";
-import {socket} from "../content/ChatContent";
+import {socket} from "../../../tools/apollo/index";
 import {withRouter} from 'react-router-dom';
 
 interface Conversation {

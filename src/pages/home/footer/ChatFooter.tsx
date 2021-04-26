@@ -13,7 +13,7 @@ const { TextArea } = Input;
 const ChatFooter = () => {
   const [emojiVisible, setEmojiVisible] = useState(false);
   const currentUserId = useSelector<string>(state => state?.auth?.profile?._id);
-  const currentConversation = useSelector<string>(state => state?.conversation?.currentConverSation);
+  const currentConversation = useSelector<string>(state => state?.conversation?.currentConversation);
   const [messageText, setMessageText] = useState('');
   const inputMessageRef = useRef(null);
   const [sendMessage] = useMutation(NEW_MESSAGE);

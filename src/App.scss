@@ -60,3 +60,15 @@ div {
 .ant-popover {
   z-index: 1000 !important;
 }
+
+.ant-btn {
+  border-radius: 8px;
+}
+
+.ant-modal-header {
+  border-radius: 10px 10px 0 0;
+}
+.ant-modal-content {
+  border: 1px !important;
+  border-radius: 10px !important;
+}

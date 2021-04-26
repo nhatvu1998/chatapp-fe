@@ -31,7 +31,7 @@ const PrivateRoute = (props: Props) => {
       <div
         className="private-content"
         style={{
-          maxHeight: "100vh",
+          minHeight: "100vh",
           backgroundColor: "#f5f5f5",
         }}
       >

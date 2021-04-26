@@ -19,9 +19,9 @@ interface Message {
 const SearchMesssage = () => {
   const [rowData, setRowData] = useState<Message[]>([])
   const [searchMessage, {loading, data}] = useLazyQuery(SEARCH_MESSAGE);
-  const currentConversation = useSelector<string>(state => state?.conversation?.currentConverSation);
+  const currentConversation = useSelector(state => state?.conversation?.currentConversation);
   const currentUserId = useSelector<string>(state => state?.auth?.profile?._id);
-
+  console.log(currentConversation)
   useEffect(() => {
     if (!loading) {
       if(data && data.searchMessage) {
@@ -37,15 +37,15 @@ const SearchMesssage = () => {
 
   return (
     <>
-    <Row className={'search-message'}>
-      <Search
-        width={'100%'}
-        placeholder="Search message"
-        onSearch={value => onSearchMessage(value)}
-        loading={loading}
-      />
-    </Row>
       <div className="message-list-infinite-container">
+        <Row className={'search-message'}>
+          <Search
+            width={'100%'}
+            placeholder="Search message"
+            onSearch={value => onSearchMessage(value)}
+            loading={loading}
+          />
+        </Row>
         <InfiniteScroll
           initialLoad={false}
           pageStart={0}
