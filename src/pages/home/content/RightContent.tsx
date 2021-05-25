@@ -85,7 +85,6 @@ const RightContent = () => {
           <Row>{renderPhotos()}</Row>
         </Panel>
       </Collapse>
-      ,
     </div>
   );
 };

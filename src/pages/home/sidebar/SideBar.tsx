@@ -10,6 +10,7 @@ import {
   Layout,
   Menu,
   Modal,
+  notification,
   Radio,
   Row,
   Select,
@@ -42,7 +43,7 @@ import {
   GET_USER_LIST,
   UPDATE_USER,
 } from "../queries/message";
-import { SIGN_OUT } from "../../../constants/types";
+import { CREATE_NEW_CONVERSATION, SIGN_OUT } from "../../../constants/types";
 
 const { Sider, Header } = Layout;
 const { Option } = Select;
@@ -225,9 +226,22 @@ const SideBar = (props) => {
       participantMembers: values.participantMembers,
       creatorId: currentUser._id,
       type: 1,
-    };
-    createConversation({ variables: { conversationInput } });
-  };
+    }
+    createConversation({variables: {conversationInput} }).then((res) => {
+      dispatch({type: CREATE_NEW_CONVERSATION, payload: res.data.createConversation})
+      notification['success']({
+        message: 'Create conversation successfully!',
+        duration: 2,
+      });
+      setVisible(false)
+    }).catch((err) => {
+      notification['error']({
+        message: 'Create conversation failed!',
+        duration: 2,
+      });
+      setVisible(false)
+    })
+  }
 
   const onUpdatePhoto = ({ target: { validity, files } }) => {
     if (validity.valid) {

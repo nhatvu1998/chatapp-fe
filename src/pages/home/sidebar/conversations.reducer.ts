@@ -1,10 +1,7 @@
-import {
-  GET_CONVERSATION_LIST,
-  SELECTED_CONVERSATION,
-} from "../../../constants/types";
+import { GET_CONVERSATION_LIST, SELECTED_CONVERSATION, CREATE_NEW_CONVERSATION } from "../../../constants/types";
 
 const INTIAL_STATE = {
-  data: null,
+  data: [],
   currentConversation: null,
 };
 
@@ -14,6 +11,8 @@ export default (state = INTIAL_STATE, action) => {
       return { ...state, data: action.payload };
     case SELECTED_CONVERSATION:
       return { ...state, currentConversation: action.payload };
+    case CREATE_NEW_CONVERSATION:
+      return { ...state, data: [action.payload, ...state.data] };
     // // case GET_USER:
     // //     return { ...state, profile: action.payload };
     // // case EDIT_PROFILE:

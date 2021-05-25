@@ -25,6 +25,7 @@ interface Conversation {
 }
 
 const MessageList = (props) => {
+  // const rowData:Conversation[] = useSelector<Conversation[]>((state) => state.conversation.data);
   const [rowData, setRowdata] = useState<Conversation[]>([]);
   const [inProp, setInProp] = useState(false);
   const dispatch = useDispatch();
@@ -59,28 +60,27 @@ const MessageList = (props) => {
   }, [currentUserId, currentConversation]);
 
   useEffect(() => {
-    socket.on("newMessage", (data) => {
+    socket.on('newMessage', data => {
       setRowdata(
-        rowData
-          .map((x) => {
-            if (x._id === data.conversationId) {
-              return {
-                ...x,
-                updatedAt: data.updatedAt,
-                firstMessage: {
-                  message: data.message,
-                  senderId: data.senderId,
-                },
-              };
-            } else return x;
-          })
-          .sort((a, b) => {
-            // @ts-ignore
-            return new Date(b.updatedAt) - new Date(a.updatedAt);
-          })
-      );
-    });
-  }, [rowData]);
+        rowData.map(x => {
+          if (x._id === data.conversationId) {
+            return {
+              ...x,
+              updatedAt: data.updatedAt,
+              firstMessage: {
+                message: data.message,
+                senderId: data.senderId,
+              }
+            }
+          } else return x;
+        }).sort((a, b) => {
+          // @ts-ignore
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+        })
+      )
+    })
+  }, [rowData])
+
 
   useEffect(() => {
     if (!loading) {
@@ -96,10 +96,10 @@ const MessageList = (props) => {
               payload: data.getManyConversation[0],
             });
           }
-          props.history.push(`/message/${data.getManyConversation[0]._id}`);
-          setRowdata(data.getManyConversation);
+          props.history.push(`/message/${data.getManyConversation[0]._id}`)
+          setRowdata(data.getManyConversation)
         } else {
-          setRowdata([]);
+          setRowdata([])
         }
       }
     }

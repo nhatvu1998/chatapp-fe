@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useQuery } from "@apollo/client";
-import { GET_CONVERSATIONS, GET_USER_LIST } from "../queries/message";
+import { useMutation, useQuery } from "@apollo/client";
+import { CREATE_CONVERSATION, GET_CONVERSATIONS, GET_USER_LIST } from "../queries/message";
 import { Avatar, Badge, List, Row, Space } from "antd";
 import InfiniteScroll from "react-infinite-scroller";
 import { MoreHorizontal } from "react-feather";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import {
+  CREATE_NEW_CONVERSATION,
   GET_CONVERSATION_LIST,
   SELECTED_CONVERSATION,
 } from "../../../constants/types";
@@ -22,7 +23,9 @@ const UserList = () => {
   const currentConversation = useSelector<string>(
     (state) => state?.conversation?.currentConverSation
   );
+  const currentUser = useSelector(state => state.auth.profile)
   const { loading, data } = useQuery(GET_USER_LIST);
+  const [createConversation] = useMutation(CREATE_CONVERSATION);
 
   useEffect(() => {
     if (!loading) {
@@ -38,8 +41,19 @@ const UserList = () => {
   }, [loading, data]);
 
   const selectConversation = (item) => {
-    dispatch({ type: SELECTED_CONVERSATION, payload: item });
+    console.log(item);
+    
+    const conversationInput = {
+      title: '',
+      participantMembers: [currentUser._id],
+      creatorId: item._id,
+      type: 0,
+    }
+    createConversation({variables: {conversationInput} }).then((res) => {
+      dispatch({type: CREATE_NEW_CONVERSATION, payload: res.data.createConversation})
+    })
   };
+
   return (
     <div className="message-list-infinite-container">
       <List

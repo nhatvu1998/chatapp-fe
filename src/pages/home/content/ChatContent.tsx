@@ -65,10 +65,6 @@ interface PagingType {
   hasMore: boolean;
 }
 
-const userId = localStorage.getItem("userId");
-const token = window.localStorage.getItem("token");
-// export const socket = io.connect(`https://api.magic-chat.cf`, {query: {token}});
-
 const ChatContent = (props) => {
   const [rowData, setRowdata] = useState<Message[]>([]);
   const [actionVisible, setActionVisible] = useState(false);
@@ -86,6 +82,7 @@ const ChatContent = (props) => {
   const currentConversation = useSelector<string>(
     (state) => state?.conversation?.currentConversation
   );
+  
   const messagesEndRef = useRef(null);
   const [getUser, { data: userInfo, loading: userLoading }] =
     useLazyQuery(GET_USER);
@@ -103,8 +100,7 @@ const ChatContent = (props) => {
 
   useEffect(() => {
     socket.on("newMessage", (data) => {
-      console.log(data);
-      if (data.conversationId === currentConversation?.id) {
+      if (data.conversationId === currentConversation?._id) {
         setRowdata((rowData) => [...rowData, data]);
       }
 
@@ -119,7 +115,7 @@ const ChatContent = (props) => {
       getUser({ variables: { id: data?.userId } });
       setCallerSignal(data);
     });
-  }, []);
+  }, [currentConversation]);
 
   useEffect(() => {
     if (isReceivingCall) {
@@ -299,20 +295,6 @@ const ChatContent = (props) => {
       },
     });
   }
-
-  const confirmCall = () => {
-    console.log(callerInfo);
-    Modal.confirm({
-      title: `${callerInfo?.fullname} is calling you`,
-      icon: <ExclamationCircleOutlined />,
-      content: "Do you want to accept this message?",
-      onOk: () => {
-        setIsReceivingCall((isReceivingCall) => !isReceivingCall);
-        acceptCall();
-      },
-      onCancel: () => setIsReceivingCall((isReceivingCall) => !isReceivingCall),
-    });
-  };
 
   return (
     <Content>

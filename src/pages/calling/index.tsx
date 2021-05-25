@@ -43,15 +43,21 @@ const Calling = (props) => {
         socket.on("answer", handleAnswer);
 
         socket.on("ice-candidate", handleNewICECandidateMsg);
-      });
-  }, []);
+      })
+  }, [])
 
   useEffect(() => {
-    const cancelElm = document.querySelector(".cancelCall") as HTMLElement;
-    if (cancelElm.style.display) {
-      setTimeout(() => {
-        cancelElm.style.display = "none";
-      }, 3000);
+    socket.on('end-call', () => {
+      window.close()
+    })
+  }, [])
+
+  useEffect(()=>{
+    const cancelElm = document.querySelector('.cancelCall') as HTMLElement;
+    if(cancelElm.style.display) {
+      setTimeout(()=>{
+        cancelElm.style.display = 'none';
+      }, 3000)
     }
   });
 
@@ -98,6 +104,7 @@ const Calling = (props) => {
         case "failed":
           partnerVideo.current.srcObject = null;
           peerRef.current.close();
+          window.close();
           break;
         case "closed":
           break;
@@ -184,11 +191,26 @@ const Calling = (props) => {
   const handleExitCall = () => {
     // const senders = peerRef.current.getSenders();
     // senders.forEach((sender) => userStream.current.removeTrack(sender, userStream.current));
-    userStream.current.getTracks().forEach((track) => track.stop());
-    console.log(peerRef.current);
-
-    window.close();
-  };
+    console.log('abc');
+    
+    // socket.emit('end-call', {peerId, target: otherUser.current })
+    if (peerRef.current) {
+      peerRef.current.ontrack = null;
+      peerRef.current.onremovetrack = null;
+      peerRef.current.onremovestream = null;
+      peerRef.current.onicecandidate = null;
+      peerRef.current.oniceconnectionstatechange = null;
+      peerRef.current.onsignalingstatechange = null;
+      peerRef.current.onicegatheringstatechange = null;
+      peerRef.current.onnegotiationneeded = null;
+      peerRef.current.close()
+      
+      socket.emit('end-call', {peerId, target: otherUser.current }, function(confirmation){
+        window.close();
+      })
+    }
+    // socket.emit('end-call', {peerId, target: otherUser.current })
+  }
 
   const toggleAudio = () => {
     userStream.current.getAudioTracks()[0].enabled = !isOnAudio;
