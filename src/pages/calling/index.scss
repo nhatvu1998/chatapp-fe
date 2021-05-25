@@ -29,3 +29,13 @@
   //align-self: flex-end;
   //justify-content: center;
 }
+
+.button-action {
+  display: flex;
+  padding: 10px;
+  border-radius: 50%;
+  &:hover {
+    background-color: red;
+  }
+
+}

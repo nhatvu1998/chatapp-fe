@@ -3,7 +3,7 @@ import { SIGN_IN, SIGN_OUT } from "../../constants/types";
 const INTIAL_STATE = {
   isSignedIn: window.localStorage.getItem("token") ? true : false,
   userId: null,
-  profile: null
+  profile: null,
 };
 
 export default (state = INTIAL_STATE, action) => {

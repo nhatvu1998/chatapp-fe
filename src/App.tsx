@@ -1,18 +1,18 @@
-import React, {Suspense, lazy, useState, useEffect} from "react";
+import React, { Suspense, lazy, useState, useEffect } from "react";
 import { Router, Route, Switch, Redirect } from "react-router-dom";
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from "@apollo/client";
 import { AuthenticatedRoutes, UnauthenticatedRoutes } from "./configs/router";
-import PublicRoute from './components/PublicRoute'
+import PublicRoute from "./components/PublicRoute";
 import PrivateRoute from "./components/PrivateRoute";
-import Loading from './components/Loading'
-import {useSelector} from 'react-redux';
-import 'antd/dist/antd.css';
-import './App.scss'
+import Loading from "./components/Loading";
+import { useSelector } from "react-redux";
+import "antd/dist/antd.css";
+import "./App.scss";
 import { createBrowserHistory } from "history";
-import {Client} from "./tools/apollo";
-import {Button, Result} from "antd";
-import {Link} from "react-router-dom";
-const history = createBrowserHistory()
+import { Client } from "./tools/apollo";
+import { Button, Result } from "antd";
+import { Link } from "react-router-dom";
+const history = createBrowserHistory();
 
 const Components = {};
 for (const c of AuthenticatedRoutes) {
@@ -24,7 +24,7 @@ for (const c of UnauthenticatedRoutes) {
 }
 const token = window.localStorage.getItem("token");
 function App() {
-  const isAuthenticated = useSelector(state => state.auth.isSignedIn)
+  const isAuthenticated = useSelector((state) => state.auth.isSignedIn);
 
   return (
     <ApolloProvider client={Client}>
@@ -33,40 +33,47 @@ function App() {
           {UnauthenticatedRoutes.map((c) => {
             const C = Components[c.component];
             return (
-                <Route
-                    key={c.path}
-                    exact={c.exact}
-                    path={c.path}
-                    render={(props) => (
-                        <PublicRoute isAuthenticated={isAuthenticated}>
-                          <Suspense fallback={<Loading />}>
-                            <C {...props} isAuthenticated={isAuthenticated} />
-                          </Suspense>
-                        </PublicRoute>
-                    )}
-                />
+              <Route
+                key={c.path}
+                exact={c.exact}
+                path={c.path}
+                render={(props) => (
+                  <PublicRoute isAuthenticated={isAuthenticated}>
+                    <Suspense fallback={<Loading />}>
+                      <C {...props} isAuthenticated={isAuthenticated} />
+                    </Suspense>
+                  </PublicRoute>
+                )}
+              />
             );
           })}
           {AuthenticatedRoutes.map((c) => {
             const C = Components[c.component];
             return (
-                <Route
-                    key={c.path}
-                    exact
-                    path={c.path}
-                    render={(props) => (
-                        <PrivateRoute isAuthenticated={isAuthenticated}>
-                          <Suspense fallback={<Loading />}>
-                            <C {...props} isAuthenticated={isAuthenticated} />
-                          </Suspense>
-                        </PrivateRoute>
-                    )}
-                />
+              <Route
+                key={c.path}
+                exact
+                path={c.path}
+                render={(props) => (
+                  <PrivateRoute isAuthenticated={isAuthenticated}>
+                    <Suspense fallback={<Loading />}>
+                      <C {...props} isAuthenticated={isAuthenticated} />
+                    </Suspense>
+                  </PrivateRoute>
+                )}
+              />
             );
           })}
-          <Route path="*" render={() =>
-            isAuthenticated ? <Redirect to="/home" /> : <Redirect to="/login" />
-          } />
+          <Route
+            path="*"
+            render={() =>
+              isAuthenticated ? (
+                <Redirect to="/home" />
+              ) : (
+                <Redirect to="/login" />
+              )
+            }
+          />
         </Switch>
       </Router>
     </ApolloProvider>

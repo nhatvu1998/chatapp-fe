@@ -1,30 +1,28 @@
-import React from 'react';
-import {Form, Input, Button, Col, Card, Divider, Row} from "antd";
+import React from "react";
+import { Form, Input, Button, Col, Card, Divider, Row } from "antd";
 import { Link } from "react-router-dom";
-import Logo  from '../../assets/icons/icons8-wechat.svg';
-import './index.scss';
-import {useMutation} from "@apollo/client";
-import {REGISTER} from "./queries";
-import Notify from '../../components/Notify';
+import Logo from "../../assets/icons/icons8-wechat.svg";
+import "./index.scss";
+import { useMutation } from "@apollo/client";
+import { REGISTER } from "./queries";
+import Notify from "../../components/Notify";
 
 const Register = () => {
   const [register] = useMutation(REGISTER);
 
   const handleSubmit = (values) => {
     register({ variables: { userData: values } })
-      .then(res => {
+      .then((res) => {
         if (!res.errors) {
-          return Notify('success', 'Đăng ký thành công');
+          return Notify("success", "Đăng ký thành công");
         }
-      }).catch((error) => {
-      return Notify('error', 'Đăng ký thất bại');
-    })
-  }
+      })
+      .catch((error) => {
+        return Notify("error", "Đăng ký thất bại");
+      });
+  };
   return (
-    <div
-      className="layout-login"
-      style={{ height: "100vh" }}
-    >
+    <div className="layout-login" style={{ height: "100vh" }}>
       <Card className="login-form">
         <Row justify="center">
           <Col>
@@ -34,9 +32,7 @@ const Register = () => {
         <Row>
           <Col>
             <div className="right-layout">
-              <Form
-                onFinish={handleSubmit}
-              >
+              <Form onFinish={handleSubmit}>
                 <Form.Item
                   name="username"
                   rules={[
@@ -82,7 +78,8 @@ const Register = () => {
                   rules={[
                     { required: true, message: "Please input your email!" },
                     {
-                      pattern: /^([A-Z|a-z|0-9](\.|_){0,1})+[A-Z|a-z|0-9]@([A-Z|a-z|0-9])+((\.){0,1}[A-Z|a-z|0-9]){2}\.[a-z]{2,3}$/gm,
+                      pattern:
+                        /^([A-Z|a-z|0-9](\.|_){0,1})+[A-Z|a-z|0-9]@([A-Z|a-z|0-9])+((\.){0,1}[A-Z|a-z|0-9]){2}\.[a-z]{2,3}$/gm,
                       message: "Email không hợp lệ",
                     },
                   ]}
@@ -95,7 +92,7 @@ const Register = () => {
                     {
                       required: true,
                       message: "Please input your fullname",
-                    }
+                    },
                   ]}
                 >
                   <Input placeholder="Full name" />
@@ -125,7 +122,7 @@ const Register = () => {
         </Row>
       </Card>
     </div>
-  )
-}
+  );
+};
 
 export default Register;

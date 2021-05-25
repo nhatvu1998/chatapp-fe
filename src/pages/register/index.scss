@@ -21,7 +21,9 @@
   width: auto;
   line-height: 24px;
 
-  #username, #email, #fullname {
+  #username,
+  #email,
+  #fullname {
     border-color: rgb(221, 223, 226);
     border-radius: 6px;
     border-style: solid;
@@ -117,4 +119,3 @@
     }
   }
 }
-

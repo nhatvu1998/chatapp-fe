@@ -1,12 +1,12 @@
-import React from 'react';
-import {Form, Input, Button, Col, Card, Divider, Row} from "antd";
+import React from "react";
+import { Form, Input, Button, Col, Card, Divider, Row } from "antd";
 import { Link, withRouter } from "react-router-dom";
-import Logo  from '../../assets/icons/icons8-wechat.svg';
-import './index.scss';
-import { useDispatch } from 'react-redux';
-import {useMutation} from "@apollo/client";
-import {LOGIN} from "./queries";
-import {SIGN_IN} from "../../constants/types";
+import Logo from "../../assets/icons/icons8-wechat.svg";
+import "./index.scss";
+import { useDispatch } from "react-redux";
+import { useMutation } from "@apollo/client";
+import { LOGIN } from "./queries";
+import { SIGN_IN } from "../../constants/types";
 import Notify from "../../components/Notify";
 const Login = () => {
   const dispatch = useDispatch();
@@ -14,21 +14,19 @@ const Login = () => {
 
   const handleSubmit = (values) => {
     login({ variables: { userData: values } })
-      .then(res => {
+      .then((res) => {
         if (!res.errors) {
-          localStorage.setItem('token', res.data.login.token)
-          dispatch({type: SIGN_IN})
-          return Notify('success', 'Đăng nhập thành công');
+          localStorage.setItem("token", res.data.login.token);
+          dispatch({ type: SIGN_IN });
+          return Notify("success", "Đăng nhập thành công");
         }
-      }).catch((error) => {
-      return Notify('error', 'Đăng nhập thất bại', 'Mật khẩu sai');
-    })
-  }
+      })
+      .catch((error) => {
+        return Notify("error", "Đăng nhập thất bại", "Mật khẩu sai");
+      });
+  };
   return (
-    <div
-      className="layout-login"
-      style={{ height: "100vh" }}
-    >
+    <div className="layout-login" style={{ height: "100vh" }}>
       <Card className="login-form">
         <Row justify="center" gutter={[0, 32]}>
           <Col>
@@ -56,9 +54,7 @@ const Login = () => {
                     { required: true, message: "Please input your Password!" },
                   ]}
                 >
-                  <Input.Password
-                    placeholder="Password!"
-                  />
+                  <Input.Password placeholder="Password!" />
                 </Form.Item>
                 <Form.Item>
                   <Button
@@ -85,7 +81,7 @@ const Login = () => {
         </Row>
       </Card>
     </div>
-  )
-}
+  );
+};
 
 export default withRouter(Login);

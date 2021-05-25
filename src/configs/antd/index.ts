@@ -1,3 +1,3 @@
 export const CustomizeAntd = {
-  '@primary-color': '#2D9CDB'
-}
+  "@primary-color": "#2D9CDB",
+};

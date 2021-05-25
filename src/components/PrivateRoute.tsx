@@ -1,33 +1,31 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { Redirect } from "react-router-dom";
-import {useDispatch} from 'react-redux';
-import {useQuery} from "@apollo/client";
-import {GET_PROFILE} from "../pages/home/queries/message";
-import {GET_USER} from "../constants/types";
+import { useDispatch } from "react-redux";
+import { useQuery } from "@apollo/client";
+import { GET_PROFILE } from "../pages/home/queries/message";
+import { GET_USER } from "../constants/types";
 interface Props {
-  isAuthenticated: boolean
-  children: any
+  isAuthenticated: boolean;
+  children: any;
 }
-
 
 const PrivateRoute = (props: Props) => {
   if (!props.isAuthenticated) return <Redirect to="/login" />;
-  const dispatch = useDispatch()
-  const {data, loading} = useQuery(GET_PROFILE)
+  const dispatch = useDispatch();
+  const { data, loading } = useQuery(GET_PROFILE);
 
   useEffect(() => {
-    if (!loading ) {
+    if (!loading) {
       if (data && data.getProfile) {
-        console.log()
-         dispatch({type: GET_USER, payload: data.getProfile});
+        console.log();
+        dispatch({ type: GET_USER, payload: data.getProfile });
       }
     }
-  }, [loading, data])
+  }, [loading, data]);
   return (
     <>
-
       <div
         className="private-content"
         style={{

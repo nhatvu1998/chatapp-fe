@@ -26,5 +26,5 @@ export const AuthenticatedRoutes = [
     exact: true,
     path: "/calling",
     component: "calling",
-  }
+  },
 ];

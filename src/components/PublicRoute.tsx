@@ -1,18 +1,18 @@
-import React from 'react'
-import { Redirect } from 'react-router-dom'
+import React from "react";
+import { Redirect } from "react-router-dom";
 
 interface Props {
-  isAuthenticated: boolean
-  children: any
+  isAuthenticated: boolean;
+  children: any;
 }
 
 const PublicRoute = (props: Props) => {
   if (props.isAuthenticated) return <Redirect to="/home" />;
   return (
     <>
-      <div className='public-content'>{props.children}</div>
+      <div className="public-content">{props.children}</div>
     </>
-  )
-}
+  );
+};
 
-export default PublicRoute
+export default PublicRoute;

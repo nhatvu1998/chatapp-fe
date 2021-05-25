@@ -1,12 +1,12 @@
 // @ts-ignore
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 const REGISTER = gql`
-    mutation register($userData: RegisterInput!) {
-        register(userData: $userData) {
-            username
-        }
+  mutation register($userData: RegisterInput!) {
+    register(userData: $userData) {
+      username
     }
+  }
 `;
 
-export {REGISTER}
+export { REGISTER };

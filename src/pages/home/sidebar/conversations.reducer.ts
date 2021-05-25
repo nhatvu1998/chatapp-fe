@@ -1,4 +1,7 @@
-import { GET_CONVERSATION_LIST, SELECTED_CONVERSATION } from "../../../constants/types";
+import {
+  GET_CONVERSATION_LIST,
+  SELECTED_CONVERSATION,
+} from "../../../constants/types";
 
 const INTIAL_STATE = {
   data: null,
