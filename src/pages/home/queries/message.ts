@@ -9,12 +9,13 @@ const GET_CONVERSATIONS = gql`
             updatedAt
             participants {
                 _id
-                userId
+                fullname
             }
             firstMessage {
                 message
                 senderId
             }
+            type
         }
     }
 `;

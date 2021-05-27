@@ -22,6 +22,8 @@ interface Conversation {
     message: string;
     senderId: string;
   };
+  participants: any;
+  type: string;
 }
 
 const MessageList = (props) => {
@@ -30,7 +32,7 @@ const MessageList = (props) => {
   const [inProp, setInProp] = useState(false);
   const dispatch = useDispatch();
   const currentConversation = useSelector<string>(
-    (state) => state?.conversation?.currentConverSation
+    (state) => state?.conversation?.currentConversation
   );
   const currentUserId = useSelector<string>(
     (state) => state?.auth?.profile?._id
@@ -133,7 +135,15 @@ const MessageList = (props) => {
         <List
           itemLayout="vertical"
           dataSource={rowData}
-          renderItem={(item) => (
+          renderItem={(item) => {
+            let title;
+            console.log(item);
+            console.log(currentConversation);
+            
+            if(!item.title && item.type === 'single') {
+              title = item.participants.filter(x => x._id !== currentUserId)[0]?.fullname
+            }
+            return (
             <List.Item
               style={{
                 backgroundColor:
@@ -174,7 +184,7 @@ const MessageList = (props) => {
             >
               <List.Item.Meta
                 avatar={<Avatar>{item?.title[0]?.toUpperCase()}</Avatar>}
-                title={<a href="#">{item.title}</a>}
+                title={<a href="#">{item.title || title}</a>}
                 description={
                   <div className="list-description">
                     {item.firstMessage?.senderId === currentUserId
@@ -186,6 +196,7 @@ const MessageList = (props) => {
               />
             </List.Item>
           )}
+        }
         ></List>
       </InfiniteScroll>
     </div>

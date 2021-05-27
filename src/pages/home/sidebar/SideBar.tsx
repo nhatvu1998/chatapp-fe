@@ -43,7 +43,7 @@ import {
   GET_USER_LIST,
   UPDATE_USER,
 } from "../queries/message";
-import { CREATE_NEW_CONVERSATION, SIGN_OUT } from "../../../constants/types";
+import { CREATE_NEW_CONVERSATION, SET_CURRENT_TAB, SIGN_OUT } from "../../../constants/types";
 
 const { Sider, Header } = Layout;
 const { Option } = Select;
@@ -54,7 +54,7 @@ enum UserGender {
 }
 
 const SideBar = (props) => {
-  const [currentTab, setCurrentTab] = useState("message");
+  const currentTab = useSelector(state => state.conversation.currentTab)
   const currentUser = useSelector((state) => state?.auth?.profile);
   const currentConversation = useSelector<string>(
     (state) => state?.conversation?.currentConverSation
@@ -153,7 +153,7 @@ const SideBar = (props) => {
   const handleMenuClick = (e) => {
     console.log(e);
     // props.history.push(`/${e.key}`)
-    setCurrentTab(e.key);
+    dispatch({ type: SET_CURRENT_TAB, payload: e.key });
   };
 
   const menu = (

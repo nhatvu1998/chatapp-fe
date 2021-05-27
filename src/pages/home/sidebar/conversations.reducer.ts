@@ -1,8 +1,9 @@
-import { GET_CONVERSATION_LIST, SELECTED_CONVERSATION, CREATE_NEW_CONVERSATION } from "../../../constants/types";
+import { GET_CONVERSATION_LIST, SELECTED_CONVERSATION, CREATE_NEW_CONVERSATION, SET_CURRENT_TAB } from "../../../constants/types";
 
 const INTIAL_STATE = {
   data: [],
   currentConversation: null,
+  currentTab: "message",
 };
 
 export default (state = INTIAL_STATE, action) => {
@@ -13,8 +14,8 @@ export default (state = INTIAL_STATE, action) => {
       return { ...state, currentConversation: action.payload };
     case CREATE_NEW_CONVERSATION:
       return { ...state, data: [action.payload, ...state.data] };
-    // // case GET_USER:
-    // //     return { ...state, profile: action.payload };
+    case SET_CURRENT_TAB:
+        return { ...state, currentTab: action.payload };
     // // case EDIT_PROFILE:
     // //     return { ...state, profile: action.payload};
     // // case GET_USER_ONLINE:

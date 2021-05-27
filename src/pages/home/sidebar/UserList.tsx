@@ -10,6 +10,7 @@ import {
   CREATE_NEW_CONVERSATION,
   GET_CONVERSATION_LIST,
   SELECTED_CONVERSATION,
+  SET_CURRENT_TAB,
 } from "../../../constants/types";
 
 interface User {
@@ -41,8 +42,6 @@ const UserList = () => {
   }, [loading, data]);
 
   const selectConversation = (item) => {
-    console.log(item);
-    
     const conversationInput = {
       title: '',
       participantMembers: [currentUser._id],
@@ -51,6 +50,8 @@ const UserList = () => {
     }
     createConversation({variables: {conversationInput} }).then((res) => {
       dispatch({type: CREATE_NEW_CONVERSATION, payload: res.data.createConversation})
+      dispatch({ type: SET_CURRENT_TAB, payload: 'message' });
+      dispatch({ type: SELECTED_CONVERSATION, payload: res.data.createConversation });
     })
   };
 
