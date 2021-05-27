@@ -137,9 +137,6 @@ const MessageList = (props) => {
           dataSource={rowData}
           renderItem={(item) => {
             let title;
-            console.log(item);
-            console.log(currentConversation);
-            
             if(!item.title && item.type === 'single') {
               title = item.participants.filter(x => x._id !== currentUserId)[0]?.fullname
             }
@@ -183,7 +180,7 @@ const MessageList = (props) => {
               }
             >
               <List.Item.Meta
-                avatar={<Avatar>{item?.title[0]?.toUpperCase()}</Avatar>}
+                avatar={<Avatar>{(item?.title[0] || title[0])?.toUpperCase()}</Avatar>}
                 title={<a href="#">{item.title || title}</a>}
                 description={
                   <div className="list-description">

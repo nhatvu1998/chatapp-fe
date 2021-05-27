@@ -61,18 +61,18 @@ const Calling = (props) => {
     }
   });
 
-  useEffect(() => {
-    const callScreen = document.querySelector("#callScreen");
-    if (callScreen) {
-      callScreen.addEventListener("mousemove", (e) => {
-        const cancelElm = document.querySelector(".cancelCall");
-        if (cancelElm) {
-          // @ts-ignore
-          cancelElm.style.display = "block";
-        }
-      });
-    }
-  });
+  // useEffect(() => {
+  //   const callScreen = document.querySelector("#callScreen");
+  //   if (callScreen) {
+  //     callScreen.addEventListener("mousemove", (e) => {
+  //       const cancelElm = document.querySelector(".cancelCall");
+  //       if (cancelElm) {
+  //         // @ts-ignore
+  //         cancelElm.style.display = "block";
+  //       }
+  //     });
+  //   }
+  // });
 
   const callUser = (userID) => {
     peerRef.current = createPeer(userID);

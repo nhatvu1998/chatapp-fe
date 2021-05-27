@@ -225,7 +225,7 @@ const SideBar = (props) => {
       title: values.title,
       participantMembers: values.participantMembers,
       creatorId: currentUser._id,
-      type: 1,
+      type: 'single',
     }
     createConversation({variables: {conversationInput} }).then((res) => {
       dispatch({type: CREATE_NEW_CONVERSATION, payload: res.data.createConversation})

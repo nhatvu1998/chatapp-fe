@@ -34,8 +34,9 @@
   display: flex;
   padding: 10px;
   border-radius: 50%;
+  background-color: rgba(255, 227, 221, 0.2);
   &:hover {
-    background-color: red;
+    background-color: rgba(255, 227, 221, 0.4);
   }
 
 }

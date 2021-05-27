@@ -137,7 +137,7 @@ const ChatContent = (props) => {
   const acceptCall = () => {
     setWebHeader("Home");
     window.open(
-      `http://${window.location.hostname}:3000/calling?peer_id=${callerSignal?.peerId}`,
+      `http://${window.location.host}/calling?peer_id=${callerSignal?.peerId}`,
       "",
       "resizable,scrollbars,status"
     );
@@ -200,31 +200,38 @@ const ChatContent = (props) => {
     );
   };
 
-  const conversationInfo = (
-    <Header className="sidebar-left__header">
-      <Row align="middle" style={{ width: "100%" }}>
-        <Col span={12}>
-          <Space>
-            <Avatar>{currentConversation?.title[0]?.toUpperCase()}</Avatar>
-            <span>{currentConversation?.title}</span>
-          </Space>
-        </Col>
-        <Col span={1} offset={10}>
-          <Tooltip title="Video call">
-            <Video size={16} onClick={() => startCall()} />
-          </Tooltip>
-        </Col>
-        <Col span={1}>
-          <Tooltip title="Info">
-            <Info
-              size={16}
-              onClick={() => setIsShowRightContent(!isShowRightContent)}
-            />
-          </Tooltip>
-        </Col>
-      </Row>
+  const conversationInfo = () => {
+    let title = '';
+    if(!currentConversation?.title && currentConversation?.type === 'single') {
+      title = currentConversation.participants.filter(x => x._id !== currentUserId)[0]?.fullname
+    }
+
+    return (
+      <Header className="sidebar-left__header">
+        <Row align="middle" style={{ width: "100%" }}>
+          <Col span={12}>
+            <Space>
+              <Avatar>{(currentConversation?.title[0] || title[0])?.toUpperCase()}</Avatar>
+              <span>{currentConversation?.title || title}</span>
+            </Space>
+          </Col>
+          <Col span={1} offset={10}>
+            <Tooltip title="Video call">
+              <Video size={16} onClick={() => startCall()} />
+            </Tooltip>
+          </Col>
+          <Col span={1}>
+            <Tooltip title="Info">
+              <Info
+                size={16}
+                onClick={() => setIsShowRightContent(!isShowRightContent)}
+              />
+            </Tooltip>
+          </Col>
+        </Row>
     </Header>
-  );
+  )
+}
 
   const renderMessage = (item, type: number) => {
     switch (type) {
@@ -299,7 +306,7 @@ const ChatContent = (props) => {
   return (
     <Content>
       <div className="chat-content">
-        {conversationInfo}
+        {conversationInfo()}
         <Row>
           <Col span={isShowRightContent ? 16 : 24}>
             <div className="demo-infinite-container" ref={messagesEndRef}>
