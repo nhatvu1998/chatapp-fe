@@ -9,6 +9,7 @@ import {
   FIND_ALL_MESSAGE,
   GET_USER,
   MESSAGES_SUBSCRIPTION,
+  NEW_MESSAGE,
   REMOVE_MESSAGE,
 } from "../queries/message";
 import {
@@ -47,6 +48,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Emoji } from "emoji-mart";
 import { Helmet } from "react-helmet";
 import { socket } from "../../../tools/apollo/index";
+import { GET_MESSAGE_LIST, LOAD_MORE_MESSAGE } from "../../../constants/types";
 const { Header, Content } = Layout;
 
 interface Message {
@@ -66,12 +68,12 @@ interface PagingType {
 }
 
 const ChatContent = (props) => {
-  const [rowData, setRowdata] = useState<Message[]>([]);
+  const rowData:Message[] = useSelector<Message[]>(state => state.message.data);
   const [actionVisible, setActionVisible] = useState(false);
   const [paging, setPaging] = useState<PagingType>({
     data: [],
     currentPage: 0,
-    loading: false,
+    loading: true,
     hasMore: true,
   });
 
@@ -86,7 +88,7 @@ const ChatContent = (props) => {
   const messagesEndRef = useRef(null);
   const [getUser, { data: userInfo, loading: userLoading }] =
     useLazyQuery(GET_USER);
-  const { data, loading, refetch } = useQuery(FIND_ALL_MESSAGE, {
+  const [loadMessage, { data, loading, refetch }] = useLazyQuery(FIND_ALL_MESSAGE, {
     variables: { messageQuery: { conversationId: currentConversation?._id } },
   });
   const [loadMoreMessage, { data: messageData, loading: messageLoading }] =
@@ -95,13 +97,14 @@ const ChatContent = (props) => {
   const [callerSignal, setCallerSignal] = useState();
   const [callerInfo, setCallerInfo] = useState();
   const [webHeader, setWebHeader] = useState("Home 123");
-
+  const dispatch = useDispatch();
   const [removeMessage] = useMutation(REMOVE_MESSAGE);
 
   useEffect(() => {
     socket.on("newMessage", (data) => {
       if (data.conversationId === currentConversation?._id) {
-        setRowdata((rowData) => [...rowData, data]);
+        // setRowdata((rowData) => [...rowData, data]);
+        dispatch({ type: NEW_MESSAGE, payload: data})
       }
 
       if (messagesEndRef.current) {
@@ -125,7 +128,7 @@ const ChatContent = (props) => {
     }
   }, [isReceivingCall]);
 
-  console.log(callerInfo);
+
   useEffect(() => {
     if (!userLoading) {
       if (userInfo?.getUser) {
@@ -145,8 +148,15 @@ const ChatContent = (props) => {
 
   useEffect(() => {
     if (currentConversation) {
-      setRowdata([]);
-      setPaging((paging) => ({ ...paging, currentPage: 1, loading: false }));
+      // setRowdata([]);
+      loadMessage({ variables: { messageQuery: { conversationId: currentConversation?._id } }});
+      setPaging({
+      data: [],
+      currentPage: 1,
+      loading: true,
+      hasMore: true,
+    });
+      
     }
   }, [currentConversation]);
 
@@ -163,10 +173,18 @@ const ChatContent = (props) => {
   useEffect(() => {
     if (!messageLoading) {
       if (messageData && messageData.findAllMessage) {
-        let result = data.findAllMessage.slice().sort((a, b) => {
+        let result = messageData.findAllMessage.slice().sort((a, b) => {
           // @ts-ignore
           return new Date(a.createdAt) - new Date(b.createdAt);
         });
+        // setRowdata([...result, ...rowData]);
+        dispatch({ type: LOAD_MORE_MESSAGE, payload: result })
+        console.log(messageData.findAllMessage.length)
+        if (messageData.findAllMessage.length < 20) {
+          setPaging({...paging, currentPage: paging.currentPage + 1, hasMore: false})
+        } else {
+          setPaging({...paging, currentPage: paging.currentPage + 1});
+        }
         console.log(result);
       }
     }
@@ -179,7 +197,8 @@ const ChatContent = (props) => {
           // @ts-ignore
           return new Date(a.createdAt) - new Date(b.createdAt);
         });
-        setRowdata(result);
+        dispatch({ type: GET_MESSAGE_LIST, payload: result})
+        // setRowdata(result);
         if (data.findAllMessage.length < 20) {
           setPaging((paging) => ({ ...paging, hasMore: false }));
         }
@@ -215,18 +234,18 @@ const ChatContent = (props) => {
               <span>{currentConversation?.title || title}</span>
             </Space>
           </Col>
-          <Col span={1} offset={10}>
-            <Tooltip title="Video call">
-              <Video size={16} onClick={() => startCall()} />
-            </Tooltip>
-          </Col>
-          <Col span={1}>
-            <Tooltip title="Info">
-              <Info
-                size={16}
-                onClick={() => setIsShowRightContent(!isShowRightContent)}
-              />
-            </Tooltip>
+          <Col span={2} offset={10}>
+            <Space>
+              <Tooltip title="Video call">
+                <Video size={16} onClick={() => startCall()} />
+              </Tooltip>
+              <Tooltip title="Info">
+                <Info
+                  size={16}
+                  onClick={() => setIsShowRightContent(!isShowRightContent)}
+                />
+              </Tooltip>
+            </Space>
           </Col>
         </Row>
     </Header>
@@ -278,18 +297,19 @@ const ChatContent = (props) => {
   };
 
   const handleInfiniteOnLoad = () => {
+    console.log(paging.loading);
+    
     let { data, currentPage } = paging;
-    console.log("---------");
-    setPaging((paging) => ({ ...paging, loading: true }));
-    loadMoreMessage({
-      variables: {
-        messageQuery: {
-          conversationId: currentConversation?._id,
-          page: currentPage + 1,
-        },
-      },
-    });
-    console.log("123456");
+        console.log("---------");
+        setPaging((paging) => ({ ...paging, loading: true }));
+        loadMoreMessage({
+          variables: {
+            messageQuery: {
+              conversationId: currentConversation?._id,
+              page: currentPage + 1,
+            },
+          },
+        });
   };
 
   function confirm(messageId) {
@@ -298,7 +318,9 @@ const ChatContent = (props) => {
       icon: <ExclamationCircleOutlined />,
       content: "Do you want to delete this message?",
       onOk: () => {
-        removeMessage({ variables: { messageId } }).then(() => refetch());
+        removeMessage({ variables: { messageId } }).then(() => {
+          console.log('object')
+        });
       },
     });
   }
@@ -325,10 +347,10 @@ const ChatContent = (props) => {
               >
                 <List
                   dataSource={rowData}
-                  renderItem={(item) => {
+                  renderItem={(item, index) => {
                     return currentUserId === item.senderId ? (
                       <div className="chat-content-sender">
-                        <List.Item key={item._id}>
+                        <List.Item key={item._id} >
                           <List.Item.Meta
                             title={
                               <Row>

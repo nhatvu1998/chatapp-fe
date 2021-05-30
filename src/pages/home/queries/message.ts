@@ -2,22 +2,22 @@
 import { gql } from "@apollo/client";
 
 const GET_CONVERSATIONS = gql`
-    query getManyConversation($userId: String!) {
-        getManyConversation(userId: $userId) {
-            _id
-            title
-            updatedAt
-            participants {
-                _id
-                fullname
-            }
-            firstMessage {
-                message
-                senderId
-            }
-            type
-        }
+  query getManyConversation($userId: String!) {
+    getManyConversation(userId: $userId) {
+      _id
+      title
+      updatedAt
+      participants {
+        _id
+        fullname
+      }
+      firstMessage {
+        message
+        senderId
+      }
+      type
     }
+  }
 `;
 
 const FIND_ALL_MESSAGE = gql`
@@ -43,6 +43,23 @@ const SEARCH_MESSAGE = gql`
       _id
       message
       senderId
+      createdAt
+    }
+  }
+`;
+
+const SEARCH_RECENT_MESSAGE = gql`
+  query searchRecentMessage($messageId: String!) {
+    searchRecentMessage(messageId: $messageId) {
+      _id
+      message
+      senderId
+      type
+      files {
+        key
+        name
+        url
+      }
       createdAt
     }
   }
@@ -191,4 +208,5 @@ export {
   CREATE_CONVERSATION,
   UPDATE_USER,
   DELETE_CONVERSATION,
+  SEARCH_RECENT_MESSAGE,
 };

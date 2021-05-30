@@ -2,7 +2,9 @@ import {
   GET_CONVERSATION_LIST,
   GET_MESSAGE_LIST,
   SELECTED_CONVERSATION,
+  LOAD_MORE_MESSAGE,
 } from "../../../constants/types";
+import { NEW_MESSAGE } from "../queries/message";
 
 const INTIAL_STATE = {
   data: [],
@@ -11,13 +13,13 @@ const INTIAL_STATE = {
 export default (state = INTIAL_STATE, action) => {
   switch (action.type) {
     case GET_MESSAGE_LIST:
+      return { ...state, data: action.payload };
+    case LOAD_MORE_MESSAGE:
       return { ...state, data: [...action.payload, ...state.data] };
-    // case SELECTED_CONVERSATION:
-    //   return { ...state, currentConverSation: action.payload };
-    // // case GET_USER:
-    // //     return { ...state, profile: action.payload };
-    // // case EDIT_PROFILE:
-    // //     return { ...state, profile: action.payload};
+    case NEW_MESSAGE:
+        return { ...state, data: [...state.data, action.payload] };
+    // case EDIT_PROFILE:
+    //     return { ...state, profile: action.payload};
     // // case GET_USER_ONLINE:
     // //     return { ...state, totalOnline: action.payload}
     default:

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Avatar, Input, List, Row } from "antd";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useSelector } from "react-redux";
-import { SEARCH_MESSAGE } from "../queries/message";
+import { SEARCH_MESSAGE, SEARCH_RECENT_MESSAGE } from "../queries/message";
 import moment from "moment";
 import { MoreHorizontal } from "react-feather";
 import InfiniteScroll from "react-infinite-scroller";
@@ -19,6 +19,7 @@ interface Message {
 const SearchMesssage = () => {
   const [rowData, setRowData] = useState<Message[]>([]);
   const [searchMessage, { loading, data }] = useLazyQuery(SEARCH_MESSAGE);
+  const [searchRecentMessage, { loading: loadingX, data: dataX }] = useLazyQuery(SEARCH_RECENT_MESSAGE);
   const currentConversation = useSelector(
     (state) => state?.conversation?.currentConversation
   );
@@ -70,7 +71,7 @@ const SearchMesssage = () => {
             renderItem={(item) => (
               <List.Item
                 key={item._id}
-                // onClick={() => selectConversation(item)}
+                onClick={() => searchRecentMessage({ variables: { messageId: item._id } })}
                 extra={
                   <>
                     <Row>

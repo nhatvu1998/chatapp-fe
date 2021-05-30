@@ -4,7 +4,8 @@ import { withRouter } from "react-router-dom";
 import qs from "query-string";
 import { socket } from "../../tools/apollo/index";
 import "./index.scss";
-import { Mic, MicOff, Monitor, PhoneOutgoing, Video, VideoOff, XCircle } from "react-feather";
+import { FaMicrophoneSlash, FaMicrophone, FaPhoneAlt, FaVideoSlash, FaVideo } from 'react-icons/fa';
+import { FiMonitor } from 'react-icons/fi';
 import { Row, Space } from "antd";
 
 const Calling = (props) => {
@@ -261,17 +262,17 @@ const Calling = (props) => {
       <video id="myVideo" playsInline muted ref={userVideo} autoPlay />
       <Row className={"cancelCall"} style={{ marginBottom: '10px' }}>
         <Space>
-          <span className="button-action" onClick={() => handleExitCall()} >
-            <PhoneOutgoing fill="#fff" />
+          <span className="button-action" style={{ backgroundColor: 'red' }} onClick={() => handleExitCall()} >
+            <FaPhoneAlt size={20} fill="#fff" />
           </span>
           <span className="button-action" onClick={() => shareScreen()} >
-            <Monitor fill="#fff" />
+            <FiMonitor size={20} fill="#fff" />
           </span>
           <span className="button-action" onClick={() => toggleAudio()}>
-            {isOnAudio ? <Mic /> : <MicOff fill="#fff" /> }
+            {isOnAudio ? <FaMicrophone size={20} fill="#fff" /> : <FaMicrophoneSlash size={20} fill="#fff" /> }
           </span>
           <span className="button-action" onClick={() => toggleVideo()}>
-            {isOnVideo ? <Video fill="#fff" /> : <VideoOff fill="#fff" />}
+            {isOnVideo ? <FaVideo size={20} fill="#fff" /> : <FaVideoSlash size={20} fill="#fff" />}
           </span>
         </Space>
       </Row>
