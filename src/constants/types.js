@@ -16,7 +16,7 @@ export const LOAD_MORE_MESSAGE = "LOAD_MORE_MESSAGE";
 
 export const NEW_MESSAGE = "NEW_MESSAGE";
 
-export const REMOVE_MESSAGE = "REMOVE_MESSAGE";
+export const DELETE_MESSAGE = "DELETE_MESSAGE";
 
 export const START_CALLING = "START_CALLING";
 

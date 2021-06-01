@@ -48,7 +48,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Emoji } from "emoji-mart";
 import { Helmet } from "react-helmet";
 import { socket } from "../../../tools/apollo/index";
-import { GET_MESSAGE_LIST, LOAD_MORE_MESSAGE } from "../../../constants/types";
+import {DELETE_MESSAGE, GET_MESSAGE_LIST, LOAD_MORE_MESSAGE} from "../../../constants/types";
 const { Header, Content } = Layout;
 
 interface Message {
@@ -84,7 +84,7 @@ const ChatContent = (props) => {
   const currentConversation = useSelector<string>(
     (state) => state?.conversation?.currentConversation
   );
-  
+
   const messagesEndRef = useRef(null);
   const [getUser, { data: userInfo, loading: userLoading }] =
     useLazyQuery(GET_USER);
@@ -113,6 +113,16 @@ const ChatContent = (props) => {
       }
     });
 
+    socket.on("removeMessage", (data) => {
+      console.log(data)
+      dispatch({ type: DELETE_MESSAGE, payload: data })
+      if (messagesEndRef.current) {
+        // @ts-ignore
+        messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+      }
+
+    });
+
     socket.on("peerId", (data) => {
       setIsReceivingCall(true);
       getUser({ variables: { id: data?.userId } });
@@ -128,7 +138,7 @@ const ChatContent = (props) => {
     }
   }, [isReceivingCall]);
 
-
+  console.log(callerInfo);
   useEffect(() => {
     if (!userLoading) {
       if (userInfo?.getUser) {
@@ -156,7 +166,7 @@ const ChatContent = (props) => {
       loading: true,
       hasMore: true,
     });
-      
+
     }
   }, [currentConversation]);
 
@@ -208,7 +218,7 @@ const ChatContent = (props) => {
 
   const startCall = () => {
     console.log(window.location);
-    
+
     setWebHeader("New conversation");
     const peerId = uuidv4();
     socket.emit("call-signal", { peerId, roomId: currentConversation?._id });
@@ -297,8 +307,6 @@ const ChatContent = (props) => {
   };
 
   const handleInfiniteOnLoad = () => {
-    console.log(paging.loading);
-    
     let { data, currentPage } = paging;
         console.log("---------");
         setPaging((paging) => ({ ...paging, loading: true }));
@@ -318,8 +326,8 @@ const ChatContent = (props) => {
       icon: <ExclamationCircleOutlined />,
       content: "Do you want to delete this message?",
       onOk: () => {
-        removeMessage({ variables: { messageId } }).then(() => {
-          console.log('object')
+        removeMessage({ variables: { messageId, conversationId: currentConversation?._id } }).then(() => {
+          dispatch({ type: REMOVE_MESSAGE, payload: messageId })
         });
       },
     });
@@ -346,82 +354,82 @@ const ChatContent = (props) => {
                 }
               >
                 <List
-                  dataSource={rowData}
-                  renderItem={(item, index) => {
-                    return currentUserId === item.senderId ? (
-                      <div className="chat-content-sender">
-                        <List.Item key={item._id} >
-                          <List.Item.Meta
-                            title={
-                              <Row>
-                                <Space>
-                                  <div className="more-action">
-                                    <Popover
-                                      placement="left"
-                                      content={
-                                        <div onClick={() => confirm(item._id)}>
-                                          Delete
-                                        </div>
-                                      }
-                                      trigger="click"
-                                    >
-                                      <Button
-                                        type="link"
-                                        icon={
-                                          <MoreHorizontal
-                                            size={16}
-                                            color={"black"}
-                                          />
-                                        }
-                                      ></Button>
-                                    </Popover>
-                                  </div>
-                                  {renderMessage(item, item.type)}
-                                </Space>
-                              </Row>
-                            }
+  dataSource={rowData}
+  renderItem={(item, index) => {
+    return currentUserId === item.senderId ? (
+      <div className="chat-content-sender">
+        <List.Item key={item._id}>
+          <List.Item.Meta
+            title={
+              <Row>
+                <Space>
+                  <div className="more-action">
+                    <Popover
+                      placement="left"
+                      content={
+                        <div onClick={() => confirm(item._id)}>
+                          Delete
+                        </div>
+                      }
+                      trigger="click"
+                    >
+                      <Button
+                        type="link"
+                        icon={
+                          <MoreHorizontal
+                            size={16}
+                            color={"black"}
                           />
-                        </List.Item>
-                      </div>
-                    ) : (
-                      <List.Item key={item._id}>
-                        <List.Item.Meta
-                          avatar={<Avatar>U</Avatar>}
-                          title={
-                            <>
-                              <Row>
-                                <Space>
-                                  {renderMessage(item, item.type)}
-                                  <div className="more-action">
-                                    <Popover
-                                      placement="right"
-                                      content={
-                                        <div onClick={() => confirm(item._id)}>
-                                          Delete
-                                        </div>
-                                      }
-                                      trigger="click"
-                                    >
-                                      <Button
-                                        type="link"
-                                        icon={
-                                          <MoreHorizontal
-                                            size={16}
-                                            color={"black"}
-                                          />
-                                        }
-                                      ></Button>
-                                    </Popover>
-                                  </div>
-                                </Space>
-                              </Row>
-                            </>
-                          }
-                        />
-                      </List.Item>
-                    );
-                  }}
-                ></List>
+                        }
+                      ></Button>
+                    </Popover>
+                  </div>
+                  {renderMessage(item, item.type)}
+                </Space>
+              </Row>
+            }
+          />
+        </List.Item>
+      </div>
+    ) : (
+      <List.Item key={item._id}>
+        <List.Item.Meta
+          avatar={<Avatar>U</Avatar>}
+          title={
+            <>
+              <Row>
+                <Space>
+                  {renderMessage(item, item.type)}
+                  <div className="more-action">
+                    <Popover
+                      placement="right"
+                      content={
+                        <div onClick={() => confirm(item._id)}>
+                          Delete
+                        </div>
+                      }
+                      trigger="click"
+                    >
+                      <Button
+                        type="link"
+                        icon={
+                          <MoreHorizontal
+                            size={16}
+                            color={"black"}
+                          />
+                        }
+                      ></Button>
+                    </Popover>
+                  </div>
+                </Space>
+              </Row>
+            </>
+          }
+        />
+      </List.Item>
+    );
+  }}
+  />
               </InfiniteScroll>
             </div>
           </Col>

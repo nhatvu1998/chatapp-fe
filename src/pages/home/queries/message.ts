@@ -37,6 +37,23 @@ const FIND_ALL_MESSAGE = gql`
   }
 `;
 
+const FIND_RECENT_MESSAGE = gql`
+  query findAllMessage($messageQuery: MessageQuery!) {
+    findAllMessage(messageQuery: $messageQuery) {
+      _id
+      message
+      senderId
+      type
+      files {
+        key
+        name
+        url
+      }
+      createdAt
+    }
+  }
+`;
+
 const SEARCH_MESSAGE = gql`
   query searchMessage($messageQuery: MessageQuery!) {
     searchMessage(messageQuery: $messageQuery) {
@@ -159,8 +176,8 @@ const GET_USER_LIST = gql`
 `;
 
 const REMOVE_MESSAGE = gql`
-  mutation removeMessage($messageId: String!) {
-    removeMessage(messageId: $messageId)
+  mutation removeMessage($messageId: String!, $conversationId: String!) {
+    removeMessage(messageId: $messageId, conversationId: $conversationId)
   }
 `;
 

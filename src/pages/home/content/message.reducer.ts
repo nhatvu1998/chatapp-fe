@@ -3,6 +3,7 @@ import {
   GET_MESSAGE_LIST,
   SELECTED_CONVERSATION,
   LOAD_MORE_MESSAGE,
+  DELETE_MESSAGE
 } from "../../../constants/types";
 import { NEW_MESSAGE } from "../queries/message";
 
@@ -18,6 +19,9 @@ export default (state = INTIAL_STATE, action) => {
       return { ...state, data: [...action.payload, ...state.data] };
     case NEW_MESSAGE:
         return { ...state, data: [...state.data, action.payload] };
+    case DELETE_MESSAGE:
+      const message = state.data.filter((message:any) => message._id !== action.payload)
+      return { ...state, data: message };
     // case EDIT_PROFILE:
     //     return { ...state, profile: action.payload};
     // // case GET_USER_ONLINE:
