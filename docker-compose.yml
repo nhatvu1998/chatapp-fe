@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   app:
-    image: chatapp-fe
+    image: asia.gcr.io/cogent-array-315406/chatapp-fe
     ports:
       - "3000:80"
     restart: unless-stopped

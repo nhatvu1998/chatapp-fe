@@ -83,6 +83,7 @@ const ChatFooter = () => {
           </label>
           <input
             type="file"
+            accept="image/*"
             required
             id="upload-photo"
             onChange={(e) => onChangePhoto(e)}

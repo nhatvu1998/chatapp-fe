@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # tên của deployment
+  name: chatapp-fe
+spec:
+  # số POD tạo ra
+  replicas: 3
+
+  # thiết lập các POD do deploy quản lý, là POD có nhãn  "app=deployapp"
+  selector:
+    matchLabels:
+      app: chatapp-fe
+
+  # Định nghĩa mẫu POD, khi cần Deploy sử dụng mẫu này để tạo Pod
+  template:
+    metadata:
+      labels:
+        app: chatapp-fe
+    spec:
+      containers:
+      - name: chatapp-fe
+        image: asia.gcr.io/cogent-array-315406/chatapp-fe
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        ports:
+          - containerPort: 80
