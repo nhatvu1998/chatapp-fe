@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: chatapp-fe
-        image: asia.gcr.io/cogent-array-315406/chatapp-fe
+        image: asia.gcr.io/cogent-array-315406/chatapp-fe:latest
         resources:
           limits:
             memory: "128Mi"
