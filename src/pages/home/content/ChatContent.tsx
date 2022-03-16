@@ -400,7 +400,7 @@ const ChatContent = (props) => {
               <Row>
                 <Space>
                   {renderMessage(item, item.type)}
-                  <div className="more-action">
+                  {/* <div className="more-action">
                     <Popover
                       placement="right"
                       content={
@@ -420,7 +420,7 @@ const ChatContent = (props) => {
                         }
                       ></Button>
                     </Popover>
-                  </div>
+                  </div> */}
                 </Space>
               </Row>
             </>

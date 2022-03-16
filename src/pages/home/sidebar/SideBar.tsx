@@ -309,11 +309,10 @@ const SideBar = (props) => {
           </Form.Item>
         </Form>
       </Modal>
-      {/*=========================*/}
       <Modal
         visible={updateVisible}
         title="Update user profile"
-        okText="Create"
+        okText="Update"
         cancelText="Cancel"
         onCancel={() => setUpdateVisible(false)}
         onOk={() => {

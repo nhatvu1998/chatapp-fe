@@ -75,9 +75,9 @@ function App() {
             }
           />
         </Switch>
-      </Router>
+      </Router> 
     </ApolloProvider>
   );
 }
-
+  
 export default App;
